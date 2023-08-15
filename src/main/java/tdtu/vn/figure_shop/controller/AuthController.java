@@ -4,7 +4,6 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 import tdtu.vn.figure_shop.dto.AuthResponseDTO;
 import tdtu.vn.figure_shop.dto.LoginDTO;
 import tdtu.vn.figure_shop.dto.RegisterDTO;
-import tdtu.vn.figure_shop.security.JWTTokenProvider;
 import tdtu.vn.figure_shop.service.AuthService;
 
 @RestController

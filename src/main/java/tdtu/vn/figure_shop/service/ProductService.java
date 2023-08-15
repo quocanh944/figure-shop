@@ -1,7 +1,7 @@
 package tdtu.vn.figure_shop.service;
 
-import java.util.List;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import tdtu.vn.figure_shop.domain.Brand;
 import tdtu.vn.figure_shop.domain.Film;
@@ -27,11 +27,17 @@ public class ProductService {
         this.brandRepository = brandRepository;
     }
 
-    public List<ProductDTO> findAll() {
-        final List<Product> products = productRepository.findAll(Sort.by("id"));
-        return products.stream()
-                .map(product -> mapToDTO(product, new ProductDTO()))
-                .toList();
+    public Page<ProductDTO> findAll(Integer page, Integer size) {
+        Page<Product> pageEntities = productRepository.findAll(PageRequest.of(page, size));
+        return pageEntities.map((product -> mapToDTO(product, new ProductDTO())));
+    }
+
+    public Page<ProductDTO> findAllByFilm(Integer page, Integer size, Long id) {
+        Film film = filmRepository.findById(id).orElseThrow();
+
+        Page<Product> pageEntities = productRepository.findAllByFilm(film, PageRequest.of(page, size));
+
+        return pageEntities.map(product -> mapToDTO(product, new ProductDTO()));
     }
 
     public ProductDTO get(final Long id) {
