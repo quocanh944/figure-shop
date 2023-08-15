@@ -2,18 +2,12 @@ package tdtu.vn.figure_shop.rest;
 
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
-import java.util.List;
+
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import tdtu.vn.figure_shop.dto.ProductDTO;
 import tdtu.vn.figure_shop.service.ProductService;
 
@@ -29,8 +23,36 @@ public class ProductResource {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProductDTO>> getAllProducts() {
-        return ResponseEntity.ok(productService.findAll());
+    public ResponseEntity<Page<ProductDTO>> getAllProducts(
+            @RequestParam(
+                    value = "page",
+                    defaultValue = "0",
+                    required = false
+            ) Integer page,
+            @RequestParam(
+                    value = "size",
+                    defaultValue = "9",
+                    required = false
+            ) Integer size) {
+
+        return ResponseEntity.ok(productService.findAll(page, size));
+    }
+
+    @GetMapping("/film/{id}")
+    public ResponseEntity<Page<ProductDTO>> getAllProductsByFilm(
+            @PathVariable(name = "id") Long filmId,
+            @RequestParam(
+                    value = "page",
+                    defaultValue = "0",
+                    required = false
+            ) Integer page,
+            @RequestParam(
+                    value = "size",
+                    defaultValue = "9",
+                    required = false
+            ) Integer size) {
+
+        return ResponseEntity.ok(productService.findAllByFilm(page, size, filmId));
     }
 
     @GetMapping("/{id}")
