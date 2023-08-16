@@ -7,8 +7,7 @@ import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.security.SecuritySchemes;
-import io.swagger.v3.oas.models.OpenAPI;
-import jakarta.servlet.FilterChain;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -36,9 +35,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
                 scheme = "bearer", bearerFormat = "JWT")
 })
 public class SecurityConfig {
-
+    @Autowired
     private JwtAuthEntryPoint jwtAuthEntryPoint;
-    private CustomUserDetailsService customUserDetailsService;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws  Exception {
@@ -71,7 +69,7 @@ public class SecurityConfig {
         httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(ex -> {
-                    ex.authenticationEntryPoint(jwtAuthEntryPoint);
+                    ex.authenticationEntryPoint(this.jwtAuthEntryPoint);
                 })
                 .sessionManagement(session -> {
                   session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
@@ -80,6 +78,23 @@ public class SecurityConfig {
                     auth
                             .requestMatchers("/api/auth/**")
                             .permitAll()
+                            .requestMatchers(
+                                    HttpMethod.GET,
+                                    "/api/**"
+                            )
+                            .permitAll()
+                            .requestMatchers(
+                                    HttpMethod.POST,
+                                    "/api/products", "/api/medias", "/api/films", "/api/brands"
+                            ).hasRole("ADMIN")
+                            .requestMatchers(
+                                    HttpMethod.DELETE,
+                                    "/api/products/**", "/api/medias/**", "/api/films/**", "/api/brands/**", "/api/feedbacks/**"
+                            ).hasRole("ADMIN")
+                            .requestMatchers(
+                                    HttpMethod.PUT,
+                                    "/api/products/**", "/api/medias/**", "/api/films/**", "/api/brands/**"
+                            ).hasRole("ADMIN")
                             .anyRequest()
                             .authenticated();
                 });

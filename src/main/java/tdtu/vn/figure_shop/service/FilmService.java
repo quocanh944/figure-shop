@@ -1,6 +1,8 @@
 package tdtu.vn.figure_shop.service;
 
 import java.util.List;
+
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import tdtu.vn.figure_shop.domain.Film;
@@ -10,13 +12,10 @@ import tdtu.vn.figure_shop.util.NotFoundException;
 
 
 @Service
+@AllArgsConstructor
 public class FilmService {
 
     private final FilmRepository filmRepository;
-
-    public FilmService(final FilmRepository filmRepository) {
-        this.filmRepository = filmRepository;
-    }
 
     public List<FilmDTO> findAll() {
         final List<Film> films = filmRepository.findAll(Sort.by("id"));

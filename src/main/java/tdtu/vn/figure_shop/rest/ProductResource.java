@@ -1,6 +1,9 @@
 package tdtu.vn.figure_shop.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 
 import org.springframework.data.domain.Page;
@@ -9,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tdtu.vn.figure_shop.dto.ProductDTO;
+import tdtu.vn.figure_shop.dto.ProductDetailDTO;
 import tdtu.vn.figure_shop.service.ProductService;
 
 
@@ -23,6 +27,7 @@ public class ProductResource {
     }
 
     @GetMapping
+    @SecurityRequirements()
     public ResponseEntity<Page<ProductDTO>> getAllProducts(
             @RequestParam(
                     value = "page",
@@ -39,6 +44,7 @@ public class ProductResource {
     }
 
     @GetMapping("/film/{id}")
+    @SecurityRequirements()
     public ResponseEntity<Page<ProductDTO>> getAllProductsByFilm(
             @PathVariable(name = "id") Long filmId,
             @RequestParam(
@@ -56,7 +62,8 @@ public class ProductResource {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductDTO> getProduct(@PathVariable(name = "id") final Long id) {
+    @SecurityRequirements()
+    public ResponseEntity<ProductDetailDTO> getProduct(@PathVariable(name = "id") final Long id) {
         return ResponseEntity.ok(productService.get(id));
     }
 

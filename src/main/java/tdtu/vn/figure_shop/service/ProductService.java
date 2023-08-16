@@ -1,31 +1,34 @@
 package tdtu.vn.figure_shop.service;
 
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import tdtu.vn.figure_shop.domain.Brand;
 import tdtu.vn.figure_shop.domain.Film;
+import tdtu.vn.figure_shop.domain.Media;
 import tdtu.vn.figure_shop.domain.Product;
 import tdtu.vn.figure_shop.dto.ProductDTO;
+import tdtu.vn.figure_shop.dto.ProductDetailDTO;
 import tdtu.vn.figure_shop.repos.BrandRepository;
 import tdtu.vn.figure_shop.repos.FilmRepository;
+import tdtu.vn.figure_shop.repos.MediaRepository;
 import tdtu.vn.figure_shop.repos.ProductRepository;
 import tdtu.vn.figure_shop.util.NotFoundException;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 
 @Service
+@AllArgsConstructor
 public class ProductService {
 
     private final ProductRepository productRepository;
     private final FilmRepository filmRepository;
     private final BrandRepository brandRepository;
-
-    public ProductService(final ProductRepository productRepository,
-            final FilmRepository filmRepository, final BrandRepository brandRepository) {
-        this.productRepository = productRepository;
-        this.filmRepository = filmRepository;
-        this.brandRepository = brandRepository;
-    }
+    private final MediaRepository mediaRepository;
 
     public Page<ProductDTO> findAll(Integer page, Integer size) {
         Page<Product> pageEntities = productRepository.findAll(PageRequest.of(page, size));
@@ -40,9 +43,9 @@ public class ProductService {
         return pageEntities.map(product -> mapToDTO(product, new ProductDTO()));
     }
 
-    public ProductDTO get(final Long id) {
+    public ProductDetailDTO get(final Long id) {
         return productRepository.findById(id)
-                .map(product -> mapToDTO(product, new ProductDTO()))
+                .map(product -> mapToDetailDTO(product, new ProductDetailDTO()))
                 .orElseThrow(NotFoundException::new);
     }
 
@@ -90,4 +93,19 @@ public class ProductService {
         return product;
     }
 
+    private ProductDetailDTO mapToDetailDTO(final Product product, final ProductDetailDTO productDetailDTO) {
+        productDetailDTO.setId(product.getId());
+        productDetailDTO.setName(product.getName());
+        productDetailDTO.setPrice(product.getPrice());
+        productDetailDTO.setQuantity(product.getQuantity());
+        productDetailDTO.setDescription(product.getDescription());
+
+        List<String> images = new ArrayList<>();
+        images.add(product.getImage());
+        images.addAll(mediaRepository.findAllByProduct(product).stream().map(Media::getUrl).toList());
+
+        productDetailDTO.setFilm(product.getFilm() == null ? null : product.getFilm().getId());
+        productDetailDTO.setBrand(product.getBrand() == null ? null : product.getBrand().getId());
+        return productDetailDTO;
+    }
 }

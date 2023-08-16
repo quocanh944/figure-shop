@@ -1,6 +1,8 @@
 package tdtu.vn.figure_shop.service;
 
 import java.util.List;
+
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import tdtu.vn.figure_shop.domain.Feedback;
@@ -14,19 +16,12 @@ import tdtu.vn.figure_shop.util.NotFoundException;
 
 
 @Service
+@AllArgsConstructor
 public class FeedbackService {
 
     private final FeedbackRepository feedbackRepository;
     private final ProductRepository productRepository;
     private final UserEntityRepository userEntityRepository;
-
-    public FeedbackService(final FeedbackRepository feedbackRepository,
-            final ProductRepository productRepository,
-            final UserEntityRepository userEntityRepository) {
-        this.feedbackRepository = feedbackRepository;
-        this.productRepository = productRepository;
-        this.userEntityRepository = userEntityRepository;
-    }
 
     public List<FeedbackDTO> findAll() {
         final List<Feedback> feedbacks = feedbackRepository.findAll(Sort.by("id"));

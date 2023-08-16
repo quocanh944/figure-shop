@@ -1,6 +1,7 @@
 package tdtu.vn.figure_shop.rest;
 
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -29,11 +30,13 @@ public class MediaResource {
     }
 
     @GetMapping
+    @SecurityRequirements()
     public ResponseEntity<List<MediaDTO>> getAllMedias() {
         return ResponseEntity.ok(mediaService.findAll());
     }
 
     @GetMapping("/{id}")
+    @SecurityRequirements()
     public ResponseEntity<MediaDTO> getMedia(@PathVariable(name = "id") final Long id) {
         return ResponseEntity.ok(mediaService.get(id));
     }
