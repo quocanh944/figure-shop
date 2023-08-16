@@ -1,6 +1,7 @@
 package tdtu.vn.figure_shop.rest;
 
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -29,11 +30,13 @@ public class FeedbackResource {
     }
 
     @GetMapping
+    @SecurityRequirements()
     public ResponseEntity<List<FeedbackDTO>> getAllFeedbacks() {
         return ResponseEntity.ok(feedbackService.findAll());
     }
 
     @GetMapping("/{id}")
+    @SecurityRequirements()
     public ResponseEntity<FeedbackDTO> getFeedback(@PathVariable(name = "id") final Long id) {
         return ResponseEntity.ok(feedbackService.get(id));
     }

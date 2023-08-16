@@ -1,6 +1,7 @@
 package tdtu.vn.figure_shop.rest;
 
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -29,11 +30,13 @@ public class FilmResource {
     }
 
     @GetMapping
+    @SecurityRequirements()
     public ResponseEntity<List<FilmDTO>> getAllFilms() {
         return ResponseEntity.ok(filmService.findAll());
     }
 
     @GetMapping("/{id}")
+    @SecurityRequirements()
     public ResponseEntity<FilmDTO> getFilm(@PathVariable(name = "id") final Long id) {
         return ResponseEntity.ok(filmService.get(id));
     }

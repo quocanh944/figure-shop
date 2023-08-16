@@ -1,6 +1,8 @@
 package tdtu.vn.figure_shop.service;
 
 import java.util.List;
+
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import tdtu.vn.figure_shop.domain.Media;
@@ -12,16 +14,11 @@ import tdtu.vn.figure_shop.util.NotFoundException;
 
 
 @Service
+@AllArgsConstructor
 public class MediaService {
 
     private final MediaRepository mediaRepository;
     private final ProductRepository productRepository;
-
-    public MediaService(final MediaRepository mediaRepository,
-            final ProductRepository productRepository) {
-        this.mediaRepository = mediaRepository;
-        this.productRepository = productRepository;
-    }
 
     public List<MediaDTO> findAll() {
         final List<Media> medias = mediaRepository.findAll(Sort.by("id"));
