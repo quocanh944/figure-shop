@@ -11,8 +11,6 @@ import tdtu.vn.figure_shop.model.MediaEnum;
 @Setter
 public class MediaDTO {
 
-    private Long id;
-
     @NotNull
     private MediaEnum type;
 
