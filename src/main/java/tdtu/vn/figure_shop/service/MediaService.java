@@ -51,7 +51,6 @@ public class MediaService {
     }
 
     private MediaDTO mapToDTO(final Media media, final MediaDTO mediaDTO) {
-        mediaDTO.setId(media.getId());
         mediaDTO.setType(media.getType());
         mediaDTO.setUrl(media.getUrl());
         mediaDTO.setProduct(media.getProduct() == null ? null : media.getProduct().getId());

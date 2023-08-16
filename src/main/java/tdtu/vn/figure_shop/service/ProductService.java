@@ -8,8 +8,10 @@ import tdtu.vn.figure_shop.domain.Brand;
 import tdtu.vn.figure_shop.domain.Film;
 import tdtu.vn.figure_shop.domain.Media;
 import tdtu.vn.figure_shop.domain.Product;
+import tdtu.vn.figure_shop.dto.MediaDTO;
 import tdtu.vn.figure_shop.dto.ProductDTO;
 import tdtu.vn.figure_shop.dto.ProductDetailDTO;
+import tdtu.vn.figure_shop.model.MediaEnum;
 import tdtu.vn.figure_shop.repos.BrandRepository;
 import tdtu.vn.figure_shop.repos.FilmRepository;
 import tdtu.vn.figure_shop.repos.MediaRepository;
@@ -17,6 +19,7 @@ import tdtu.vn.figure_shop.repos.ProductRepository;
 import tdtu.vn.figure_shop.util.NotFoundException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -100,10 +103,22 @@ public class ProductService {
         productDetailDTO.setQuantity(product.getQuantity());
         productDetailDTO.setDescription(product.getDescription());
 
-        List<String> images = new ArrayList<>();
-        images.add(product.getImage());
-        images.addAll(mediaRepository.findAllByProduct(product).stream().map(Media::getUrl).toList());
+        List<MediaDTO> medias = new ArrayList<>();
 
+        MediaDTO thumbnail = new MediaDTO();
+        thumbnail.setProduct(product.getId());
+        thumbnail.setType(MediaEnum.IMAGE);
+        thumbnail.setUrl(product.getImage());
+        medias.add(thumbnail);
+        medias.addAll(mediaRepository.findAllByProduct(product).stream().map(media -> {
+            MediaDTO mediaDTO = new MediaDTO();
+            mediaDTO.setProduct(media.getProduct().getId());
+            mediaDTO.setType(media.getType());
+            mediaDTO.setUrl(media.getUrl());
+            return mediaDTO;
+        }).toList());
+
+        productDetailDTO.setMedias(medias);
         productDetailDTO.setFilm(product.getFilm() == null ? null : product.getFilm().getId());
         productDetailDTO.setBrand(product.getBrand() == null ? null : product.getBrand().getId());
         return productDetailDTO;

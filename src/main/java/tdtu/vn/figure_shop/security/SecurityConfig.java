@@ -86,15 +86,15 @@ public class SecurityConfig {
                             .requestMatchers(
                                     HttpMethod.POST,
                                     "/api/products", "/api/medias", "/api/films", "/api/brands"
-                            ).hasRole("ADMIN")
+                            ).hasAuthority("ADMIN")
                             .requestMatchers(
                                     HttpMethod.DELETE,
                                     "/api/products/**", "/api/medias/**", "/api/films/**", "/api/brands/**", "/api/feedbacks/**"
-                            ).hasRole("ADMIN")
+                            ).hasAuthority("ADMIN")
                             .requestMatchers(
                                     HttpMethod.PUT,
                                     "/api/products/**", "/api/medias/**", "/api/films/**", "/api/brands/**"
-                            ).hasRole("ADMIN")
+                            ).hasAuthority("ADMIN")
                             .anyRequest()
                             .authenticated();
                 });

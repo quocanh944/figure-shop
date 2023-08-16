@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -24,8 +25,7 @@ public class ProductDetailDTO {
     @NotNull
     private Integer quantity;
 
-    @Size(max = 255)
-    private List<String> images;
+    private List<MediaDTO> medias;
 
     @NotNull
     private String description;
