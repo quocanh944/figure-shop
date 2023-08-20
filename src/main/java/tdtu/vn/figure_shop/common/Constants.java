@@ -12,6 +12,6 @@ public class Constants {
 
     public static final String FB_ACCESS_TOKEN = ""; // Token to access file
 
-    public static final String FB_STORAGE_URL = "firebasestorage.googleapis.com/v0/b/" + FB_PROJECT_ID + "/o/";
+    public static final String FB_STORAGE_URL = "firebasestorage.googleapis.com/v0/b/" + STORAGE_ID + "/o/";
 
 }
