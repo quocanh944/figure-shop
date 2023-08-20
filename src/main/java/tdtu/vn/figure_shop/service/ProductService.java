@@ -2,7 +2,9 @@ package tdtu.vn.figure_shop.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import tdtu.vn.figure_shop.domain.Brand;
 import tdtu.vn.figure_shop.domain.Film;
@@ -45,6 +47,34 @@ public class ProductService {
 
         return pageEntities.map(product -> mapToDTO(product, new ProductDTO()));
     }
+    public Page<ProductDTO> findProductsByPriceRangeOrderByPriceDesc(double minPrice,double maxPrice,int page,int size){
+        Page<Product> productPage =productRepository.findByPriceBetweenOrderByPriceDesc(minPrice,maxPrice,PageRequest.of(page,size));
+
+        return productPage.map(product -> mapToDTO(product,new ProductDTO()));
+    }
+    public Page<ProductDTO> findProductsByName(String name,int page,int size){
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Product> products = productRepository.findByNameContainingIgnoreCase(name,pageable);
+        return products.map(product -> mapToDTO(product,new ProductDTO()));
+    }
+
+    public Page<ProductDTO> findProductBrand(Long brandId,int page,int size){
+        Brand brand = brandRepository.findById(brandId).orElseThrow();
+//
+        Page<Product> products = productRepository.findByBrand(brand,PageRequest.of(page,size));
+        return products.map(product -> mapToDTO(product,new ProductDTO()));
+    }
+
+    public Page<ProductDTO> findProductsByPriceRangeOrderByPriceAsc(double minPrice,double maxPrice,int page,int size){
+        Page<Product> productPage =productRepository.findByPriceBetweenOrderByPriceAsc(minPrice,maxPrice,PageRequest.of(page, size));
+        return productPage.map(product -> mapToDTO(product,new ProductDTO()));
+    }
+
+    public Page<ProductDTO> findProductPriceBetween(double minPrice, double maxPrice, int page, int size){
+        Page<Product> products =productRepository.findByPriceBetweenOrderByPriceAsc(minPrice,maxPrice,PageRequest.of(page, size));
+        return products.map(product -> mapToDTO(product,new ProductDTO()));
+    }
+
 
     public ProductDetailDTO get(final Long id) {
         return productRepository.findById(id)
