@@ -7,8 +7,6 @@ import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,7 +23,7 @@ import static tdtu.vn.figure_shop.common.Constants.*;
 
 @Service
 public class FireBaseService {
-    public ResponseEntity<String> uploadFile(MultipartFile multipartFile) throws IOException {
+    public String uploadFile(MultipartFile multipartFile) throws IOException {
         String objectName = generateFileName(multipartFile);
         Resource resource = new ClassPathResource(FB_SDK_JSON);
 
@@ -43,7 +41,7 @@ public class FireBaseService {
         storage.create(blobInfo, Files.readAllBytes(filePath));
         System.out.println("Deleted file after up to Firebase: " + file.delete());
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(generateImageUrl(objectName));
+        return generateImageUrl(objectName);
     }
 
     private File convertMultiPartToFile(MultipartFile file) throws IOException {
