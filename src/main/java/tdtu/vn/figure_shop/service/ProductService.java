@@ -123,4 +123,7 @@ public class ProductService {
         productDetailDTO.setBrand(product.getBrand() == null ? null : product.getBrand().getId());
         return productDetailDTO;
     }
+    public Product getProductById(Long id) {
+        return productRepository.findById(id).orElse(null);
+    }
 }
