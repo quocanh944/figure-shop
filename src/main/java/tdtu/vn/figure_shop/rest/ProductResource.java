@@ -7,6 +7,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -59,6 +62,58 @@ public class ProductResource {
             ) Integer size) {
 
         return ResponseEntity.ok(productService.findAllByFilm(page, size, filmId));
+    }
+
+    @GetMapping("/byPriceRange")
+    @SecurityRequirements()
+    public ResponseEntity<Page<ProductDTO>> getProductByPriceBetween(
+            @RequestParam double minPrice,
+            @RequestParam double maxPrice,
+            @RequestParam(value = "page",
+                    defaultValue = "0",
+                    required = false) int page,
+            @RequestParam(value = "size",
+                    defaultValue = "9",
+                    required = false) int size,
+            @RequestParam(defaultValue = "ASC") String direction){
+        Sort.Direction sort = direction.equalsIgnoreCase("ASC")? Sort.Direction.ASC : Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sort,"price"));
+        Page<ProductDTO> products = productService.findProductPriceBetween(minPrice, maxPrice,pageable);
+        return ResponseEntity.ok(products);
+    }
+
+
+
+    @GetMapping("/search")
+    @SecurityRequirements()
+    public ResponseEntity<Page<ProductDTO>> getSearch(
+            @RequestParam String name,
+            @RequestParam(value = "page",
+                    defaultValue = "0",
+                    required = false
+            )int page,
+            @RequestParam(value = "size",
+                    defaultValue = "9",
+                    required = false)
+            int size,
+            @RequestParam(defaultValue = "ASC") String direction
+    ){
+        Sort.Direction sortDirection = direction.equalsIgnoreCase("ASC")? Sort.Direction.ASC : Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection,"price"));
+        Page<ProductDTO> productDTOS = productService.findProductsByName(name,pageable);
+
+        return ResponseEntity.ok(productDTOS);
+    }
+
+
+
+    @GetMapping("/brand")
+    public ResponseEntity<Page<ProductDTO>> getProductsByBrand(
+            @RequestParam Long brandId,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "15") int size){
+        Page<ProductDTO> productDTOS = productService.findProductBrand(brandId,page,size);
+        return ResponseEntity.ok(productDTOS);
     }
 
     @GetMapping("/{id}")

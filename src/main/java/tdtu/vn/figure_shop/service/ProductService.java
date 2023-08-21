@@ -47,34 +47,6 @@ public class ProductService {
 
         return pageEntities.map(product -> mapToDTO(product, new ProductDTO()));
     }
-    public Page<ProductDTO> findProductsByPriceRangeOrderByPriceDesc(double minPrice,double maxPrice,int page,int size){
-        Page<Product> productPage =productRepository.findByPriceBetweenOrderByPriceDesc(minPrice,maxPrice,PageRequest.of(page,size));
-
-        return productPage.map(product -> mapToDTO(product,new ProductDTO()));
-    }
-    public Page<ProductDTO> findProductsByName(String name,int page,int size){
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Product> products = productRepository.findByNameContainingIgnoreCase(name,pageable);
-        return products.map(product -> mapToDTO(product,new ProductDTO()));
-    }
-
-    public Page<ProductDTO> findProductBrand(Long brandId,int page,int size){
-        Brand brand = brandRepository.findById(brandId).orElseThrow();
-//
-        Page<Product> products = productRepository.findByBrand(brand,PageRequest.of(page,size));
-        return products.map(product -> mapToDTO(product,new ProductDTO()));
-    }
-
-    public Page<ProductDTO> findProductsByPriceRangeOrderByPriceAsc(double minPrice,double maxPrice,int page,int size){
-        Page<Product> productPage =productRepository.findByPriceBetweenOrderByPriceAsc(minPrice,maxPrice,PageRequest.of(page, size));
-        return productPage.map(product -> mapToDTO(product,new ProductDTO()));
-    }
-
-    public Page<ProductDTO> findProductPriceBetween(double minPrice, double maxPrice, int page, int size){
-        Page<Product> products =productRepository.findByPriceBetweenOrderByPriceAsc(minPrice,maxPrice,PageRequest.of(page, size));
-        return products.map(product -> mapToDTO(product,new ProductDTO()));
-    }
-
 
     public Page<ProductDTO> findProductsByName(String name,Pageable pageable){
 
@@ -89,11 +61,8 @@ public class ProductService {
         return products.map(product -> mapToDTO(product,new ProductDTO()));
     }
 
-//    public Page<ProductDTO> findProductsByPriceRangeOrderByPriceAsc(double minPrice,double maxPrice,int page,int size){
-//        Page<Product> productPage =productRepository.findByPriceBetweenOrderByPriceAsc(minPrice,maxPrice,PageRequest.of(page, size));
-//        return productPage.map(product -> mapToDTO(product,new ProductDTO()));
-//    }
-//
+
+
     public Page<ProductDTO> findProductPriceBetween(double minPrice, double maxPrice,Pageable pageable){
         Page<Product> products =productRepository.findByPriceBetween(minPrice,maxPrice,pageable);
         return products.map(product -> mapToDTO(product,new ProductDTO()));
