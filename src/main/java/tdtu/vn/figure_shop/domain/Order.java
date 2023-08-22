@@ -4,10 +4,11 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
-import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
 
 
 @Entity
@@ -42,5 +43,6 @@ public class Order {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Bangkok")
     @JsonProperty("created_date")
-    private Instant createdDate = Instant.now();
+    @CreatedDate
+    private OffsetDateTime createdDate;
 }
