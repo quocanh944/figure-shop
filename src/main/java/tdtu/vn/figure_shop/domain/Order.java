@@ -1,10 +1,14 @@
 package tdtu.vn.figure_shop.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
+import java.time.OffsetDateTime;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
 
 
 @Entity
@@ -37,4 +41,8 @@ public class Order {
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Bangkok")
+    @JsonProperty("created_date")
+    @CreatedDate
+    private OffsetDateTime createdDate;
 }

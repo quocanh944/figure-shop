@@ -69,7 +69,7 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
-    private ProductDTO mapToDTO(final Product product, final ProductDTO productDTO) {
+    public ProductDTO mapToDTO(final Product product, final ProductDTO productDTO) {
         productDTO.setId(product.getId());
         productDTO.setName(product.getName());
         productDTO.setPrice(product.getPrice());
