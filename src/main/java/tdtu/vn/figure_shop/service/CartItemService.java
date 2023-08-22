@@ -12,6 +12,7 @@ import tdtu.vn.figure_shop.repos.CartItemRepository;
 import tdtu.vn.figure_shop.repos.ProductRepository;
 import tdtu.vn.figure_shop.repos.UserEntityRepository;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -59,5 +60,25 @@ public class CartItemService {
         );
         cartItemDTO.setTotal(cartItemDTO.getQuantity() * cartItemDTO.getProductDTO().getPrice());
         return cartItemDTO;
+    }
+
+    public void updateItem(Long productID, int quantity) {
+        UserEntity user = userEntityRepository.findByEmail(userService.getCurrentUser()).orElseThrow();
+        Product product = productRepository.findById(productID).orElseThrow();
+        CartItem cartItem = cartItemRepository.findByUserAndProduct(user, product);
+        cartItem.setQuantity(quantity);
+        cartItemRepository.save(cartItem);
+    }
+    public void removeItemToCart(Long productID) {
+        UserEntity user = userEntityRepository.findByEmail(userService.getCurrentUser()).orElseThrow();
+        Product product = productRepository.findById(productID).orElseThrow();
+        CartItem cartItem = cartItemRepository.findByUserAndProduct(user, product);
+        cartItemRepository.delete(cartItem);
+    }
+
+    public void clearItems() {
+        UserEntity user = userEntityRepository.findByEmail(userService.getCurrentUser()).orElseThrow();
+        List<CartItem> cartItems = cartItemRepository.findByUser_Id(user.getId());
+        cartItemRepository.deleteAll(cartItems);
     }
 }

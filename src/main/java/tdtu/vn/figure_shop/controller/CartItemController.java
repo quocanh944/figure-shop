@@ -18,10 +18,20 @@ public class CartItemController {
     public ListCartItemDTO viewCart() {
         return cartItemService.getCartItemByUserId(userService.getUserIdByEmail(userService.getCurrentUser()));
     }
-
     @PostMapping("/add")
     public void addItemToCart(@RequestParam Long productId) {
-        UserEntity user = userService.getUserById(userService.getUserIdByEmail(userService.getCurrentUser()));
         cartItemService.addItemToCart(productId);
+    }
+    @PostMapping("/update")
+    public void updateItem(@RequestParam Long productId, @RequestParam int quantity) {
+        cartItemService.updateItem(productId, quantity);
+    }
+    @GetMapping("/remove")
+    public void removeItemFromCart(@RequestParam Long productId) {
+        cartItemService.removeItemToCart(productId);
+    }
+    @GetMapping("/clear")
+    public void clearItems() {
+        cartItemService.clearItems();
     }
 }
