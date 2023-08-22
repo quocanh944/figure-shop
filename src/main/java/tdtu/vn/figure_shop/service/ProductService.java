@@ -6,7 +6,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import tdtu.vn.figure_shop.domain.Brand;
 import tdtu.vn.figure_shop.domain.Film;
-import tdtu.vn.figure_shop.domain.Media;
 import tdtu.vn.figure_shop.domain.Product;
 import tdtu.vn.figure_shop.dto.MediaDTO;
 import tdtu.vn.figure_shop.dto.ProductDTO;
@@ -19,9 +18,7 @@ import tdtu.vn.figure_shop.repos.ProductRepository;
 import tdtu.vn.figure_shop.util.NotFoundException;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -122,5 +119,8 @@ public class ProductService {
         productDetailDTO.setFilm(product.getFilm() == null ? null : product.getFilm().getId());
         productDetailDTO.setBrand(product.getBrand() == null ? null : product.getBrand().getId());
         return productDetailDTO;
+    }
+    public Product getProductById(Long id) {
+        return productRepository.findById(id).orElse(null);
     }
 }
