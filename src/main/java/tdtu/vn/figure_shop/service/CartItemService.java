@@ -23,7 +23,8 @@ public class CartItemService {
     private final ProductRepository productRepository;
     private final UserService userService;
     private final ProductService productService;
-    public ListCartItemDTO getCartItemByUserId(Long userId) {
+
+    public ListCartItemDTO getCartItemDTOByUserId(Long userId) {
         ListCartItemDTO listCartItemDTO = new ListCartItemDTO();
         listCartItemDTO.setCartItems(
                 cartItemRepository.findByUser_Id(userId)
