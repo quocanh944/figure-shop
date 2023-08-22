@@ -14,9 +14,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import tdtu.vn.figure_shop.domain.Brand;
+import tdtu.vn.figure_shop.dto.CreateDTO;
 import tdtu.vn.figure_shop.dto.ProductDTO;
 import tdtu.vn.figure_shop.dto.ProductDetailDTO;
 import tdtu.vn.figure_shop.service.ProductService;
+
+import java.io.IOException;
 
 
 @RestController
@@ -122,11 +127,44 @@ public class ProductResource {
         return ResponseEntity.ok(productService.get(id));
     }
 
-    @PostMapping
+    @PostMapping(value = "/create", consumes = {
+            "multipart/form-data"
+    })
     @ApiResponse(responseCode = "201")
-    public ResponseEntity<Long> createProduct(@RequestBody @Valid final ProductDTO productDTO) {
-        final Long createdId = productService.create(productDTO);
-        return new ResponseEntity<>(createdId, HttpStatus.CREATED);
+    public ResponseEntity<String> createProduct(
+            @RequestParam("name") String name,
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("price") Double price,
+            @RequestParam("quantity") int quantity,
+            @RequestParam("description") String description
+//            @RequestParam(value = "brand", required = false) int brand,
+//            @RequestParam(value = "film", required = false) int film
+            ) throws IOException {
+        productService.createProduct(name,price,quantity,description,file);
+        return new ResponseEntity<>("successfully",HttpStatus.CREATED);
+    }
+    @PutMapping(value = "/update/{id}", consumes = {"multipart/form-data"
+    })
+    public ResponseEntity<String> update(
+            @PathVariable(name = "id") Long productId,
+            @RequestParam("name") String name,
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("price") Double price,
+            @RequestParam("quantity") int quantity,
+            @RequestParam("description") String description
+
+          ){
+        try{
+            CreateDTO createDTO = new CreateDTO();
+            createDTO.setName(name);
+            createDTO.setPrice(price);
+            createDTO.setQuantity(quantity);
+            createDTO.setDescription(description);
+            productService.updateProduct(productId,createDTO,file);
+            return ResponseEntity.ok("Product updated successfully");
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred");
+        }
     }
 
     @PutMapping("/{id}")
@@ -136,11 +174,15 @@ public class ProductResource {
         return ResponseEntity.ok(id);
     }
 
+
+
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
     public ResponseEntity<Void> deleteProduct(@PathVariable(name = "id") final Long id) {
         productService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+
 
 }

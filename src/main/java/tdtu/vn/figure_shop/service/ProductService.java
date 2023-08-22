@@ -6,10 +6,12 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import tdtu.vn.figure_shop.domain.Brand;
 import tdtu.vn.figure_shop.domain.Film;
 import tdtu.vn.figure_shop.domain.Media;
 import tdtu.vn.figure_shop.domain.Product;
+import tdtu.vn.figure_shop.dto.CreateDTO;
 import tdtu.vn.figure_shop.dto.MediaDTO;
 import tdtu.vn.figure_shop.dto.ProductDTO;
 import tdtu.vn.figure_shop.dto.ProductDetailDTO;
@@ -20,6 +22,7 @@ import tdtu.vn.figure_shop.repos.MediaRepository;
 import tdtu.vn.figure_shop.repos.ProductRepository;
 import tdtu.vn.figure_shop.util.NotFoundException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +37,7 @@ public class ProductService {
     private final FilmRepository filmRepository;
     private final BrandRepository brandRepository;
     private final MediaRepository mediaRepository;
+    private final FireBaseService fireBaseService;
 
     public Page<ProductDTO> findAll(Integer page, Integer size) {
         Page<Product> pageEntities = productRepository.findAll(PageRequest.of(page, size));
@@ -86,6 +90,19 @@ public class ProductService {
                 .orElseThrow(NotFoundException::new);
         mapToEntity(productDTO, product);
         productRepository.save(product);
+    }
+
+    public void updateProduct(Long id, CreateDTO createDTO,MultipartFile image) throws IOException {
+        Product existingProduct = productRepository.findById(id).orElseThrow(NotFoundException::new);
+        existingProduct.setName(createDTO.getName());
+        existingProduct.setPrice(createDTO.getPrice());
+        existingProduct.setQuantity(createDTO.getQuantity());
+        existingProduct.setDescription(createDTO.getDescription());
+        if(image != null && image.isEmpty()){
+            String imageURL = String.valueOf(fireBaseService.uploadFile(image));
+            existingProduct.setImage(imageURL);
+        }
+        productRepository.save(existingProduct);
     }
 
     public void delete(final Long id) {
@@ -146,6 +163,21 @@ public class ProductService {
         productDetailDTO.setBrand(product.getBrand() == null ? null : product.getBrand().getId());
         return productDetailDTO;
     }
+
+
+    public void createProduct(String name, Double price, int quantity, String description, MultipartFile image) throws IOException {
+        String imageURL = String.valueOf(fireBaseService.uploadFile(image));
+        Product product = new Product();
+        product.setName(name);
+        product.setImage(imageURL);
+        product.setQuantity(quantity);
+        product.setPrice(price);
+        product.setDescription(description);
+        System.out.println(imageURL);
+        productRepository.save(product);
+
+    }
+
 
 
 }
