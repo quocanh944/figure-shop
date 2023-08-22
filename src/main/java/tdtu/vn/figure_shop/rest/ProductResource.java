@@ -1,8 +1,9 @@
 package tdtu.vn.figure_shop.rest;
 
-import io.swagger.v3.oas.annotations.Operation;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 
@@ -15,8 +16,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import tdtu.vn.figure_shop.domain.Brand;
 import tdtu.vn.figure_shop.dto.CreateDTO;
+import tdtu.vn.figure_shop.dto.CreateProductDTO;
 import tdtu.vn.figure_shop.dto.ProductDTO;
 import tdtu.vn.figure_shop.dto.ProductDetailDTO;
 import tdtu.vn.figure_shop.service.ProductService;
@@ -127,20 +128,37 @@ public class ProductResource {
         return ResponseEntity.ok(productService.get(id));
     }
 
-    @PostMapping(value = "/create", consumes = {
-            "multipart/form-data"
+    @PostMapping(consumes = {
+            MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE
     })
     @ApiResponse(responseCode = "201")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Product DTO",
+            content = @Content(
+                    schema = @Schema(implementation = CreateProductDTO.class),
+                    mediaType = MediaType.MULTIPART_FORM_DATA_VALUE
+            )
+    )
     public ResponseEntity<String> createProduct(
-            @RequestParam("name") String name,
-            @RequestParam("file") MultipartFile file,
-            @RequestParam("price") Double price,
-            @RequestParam("quantity") int quantity,
-            @RequestParam("description") String description
-//            @RequestParam(value = "brand", required = false) int brand,
-//            @RequestParam(value = "film", required = false) int film
+            @RequestPart("file") MultipartFile file,
+            @RequestPart("product") String product
             ) throws IOException {
-        productService.createProduct(name,price,quantity,description,file);
+        ProductDTO productDTO = new ProductDTO();
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            productDTO = objectMapper.readValue(product, ProductDTO.class);
+        } catch (Exception e) {
+            System.out.println("ERROR");
+        }
+
+        productService.createProduct(
+                productDTO.getName(),
+                productDTO.getPrice(),
+                productDTO.getQuantity(),
+                productDTO.getDescription(),
+                file
+        );
         return new ResponseEntity<>("successfully",HttpStatus.CREATED);
     }
     @PutMapping(value = "/update/{id}", consumes = {"multipart/form-data"
