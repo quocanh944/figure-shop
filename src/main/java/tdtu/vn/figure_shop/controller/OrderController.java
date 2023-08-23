@@ -3,12 +3,13 @@ package tdtu.vn.figure_shop.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+import tdtu.vn.figure_shop.dto.CreateOrderDTO;
 import tdtu.vn.figure_shop.dto.OrderDTO;
+import tdtu.vn.figure_shop.model.BaseResponse;
 import tdtu.vn.figure_shop.service.OrderService;
 
 
@@ -35,5 +36,20 @@ public class OrderController {
     ) {
         Page<OrderDTO> res = orderService.getOrdersRecent(page, size);
         return ResponseEntity.ok(res);
+    }
+
+    @PostMapping("/checkout")
+    public ResponseEntity<BaseResponse<String>> checkout(
+            @RequestBody CreateOrderDTO createOrderDTO,
+            Authentication authentication
+    ) {
+        orderService.checkout(createOrderDTO, authentication.getName());
+        return ResponseEntity.ok(
+                BaseResponse.<String>builder()
+                        .httpStatus(HttpStatus.OK.value())
+                        .message("Checkout success")
+                        .data("Successfully")
+                        .build()
+        );
     }
 }

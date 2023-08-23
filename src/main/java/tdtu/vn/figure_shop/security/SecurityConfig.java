@@ -79,8 +79,11 @@ public class SecurityConfig {
                             .requestMatchers("/api/auth/**")
                             .permitAll()
                             .requestMatchers(
-                                    HttpMethod.GET, "/api/orders/recent"
+                                    HttpMethod.GET, "/api/orders/recent", "/api/statistic"
                             ).hasAuthority("ADMIN")
+                            .requestMatchers(
+                                    "/api/carts/**"
+                            ).authenticated()
                             .requestMatchers(
                                     HttpMethod.GET,
                                     "/api/**"
