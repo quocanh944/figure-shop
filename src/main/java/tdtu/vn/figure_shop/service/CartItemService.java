@@ -8,6 +8,7 @@ import tdtu.vn.figure_shop.domain.UserEntity;
 import tdtu.vn.figure_shop.dto.CartItemDTO;
 import tdtu.vn.figure_shop.dto.ListCartItemDTO;
 import tdtu.vn.figure_shop.dto.ProductDTO;
+import tdtu.vn.figure_shop.exception.ProductOutOfStock;
 import tdtu.vn.figure_shop.repos.CartItemRepository;
 import tdtu.vn.figure_shop.repos.ProductRepository;
 import tdtu.vn.figure_shop.repos.UserEntityRepository;
@@ -27,13 +28,17 @@ public class CartItemService {
     public ListCartItemDTO getCartItemDTOByUserId(Long userId) {
         ListCartItemDTO listCartItemDTO = new ListCartItemDTO();
         listCartItemDTO.setCartItems(
-                cartItemRepository.findByUser_Id(userId)
+                getCartItemByUserId(userId)
                         .stream()
                         .map(cartItem -> mapToDTO(cartItem, new CartItemDTO()))
                         .collect(Collectors.toList()));
         listCartItemDTO.setTotal(listCartItemDTO.getCartItems().stream().map(CartItemDTO::getTotal).reduce(0.0, Double::sum));
 
         return listCartItemDTO;
+    }
+
+    public List<CartItem> getCartItemByUserId(Long userId) {
+        return cartItemRepository.findByUser_Id(userId);
     }
 
     public void addItemToCart(Long productID) {
@@ -75,6 +80,20 @@ public class CartItemService {
         Product product = productRepository.findById(productID).orElseThrow();
         CartItem cartItem = cartItemRepository.findByUserAndProduct(user, product);
         cartItemRepository.delete(cartItem);
+    }
+
+    public void validateCartItems() throws ProductOutOfStock {
+        UserEntity user = userEntityRepository.findByEmail(userService.getCurrentUser()).orElseThrow();
+        List<CartItem> cartItems = cartItemRepository.findByUser_Id(user.getId());
+
+        for (CartItem cartItem: cartItems) {
+            Integer cartItemQuantity = cartItem.getQuantity();
+            Product product = productRepository.findById(cartItem.getProduct().getId()).orElseThrow();
+            if (cartItemQuantity.compareTo(product.getQuantity()) > 0) {
+                throw new ProductOutOfStock("Product " + product.getName() + " only has " + product.getQuantity() + " items");
+            }
+        }
+
     }
 
     public void clearItems() {

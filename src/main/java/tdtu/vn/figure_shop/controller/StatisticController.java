@@ -1,5 +1,6 @@
 package tdtu.vn.figure_shop.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +17,7 @@ public class StatisticController {
     private final StatisticService statisticService;
 
     @GetMapping()
+    @Operation(summary = "Admin side")
     public ResponseEntity<StatisticDTO> getStatistic() {
 
         return ResponseEntity.ok(

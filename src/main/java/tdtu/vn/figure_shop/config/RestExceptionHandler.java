@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 import tdtu.vn.figure_shop.exception.BadRequestException;
+import tdtu.vn.figure_shop.exception.ProductOutOfStock;
 import tdtu.vn.figure_shop.model.ErrorResponse;
 import tdtu.vn.figure_shop.model.FieldError;
 import tdtu.vn.figure_shop.util.NotFoundException;
@@ -21,6 +22,15 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ErrorResponse> handleBadRequest(final BadRequestException exception) {
+        final ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setHttpStatus(HttpStatus.BAD_REQUEST.value());
+        errorResponse.setException(exception.getClass().getSimpleName());
+        errorResponse.setMessage(exception.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ProductOutOfStock.class)
+    public ResponseEntity<ErrorResponse> handleBadRequest(final ProductOutOfStock exception) {
         final ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setHttpStatus(HttpStatus.BAD_REQUEST.value());
         errorResponse.setException(exception.getClass().getSimpleName());
