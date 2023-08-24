@@ -22,6 +22,6 @@ public class MediaController {
     })
     @Operation(summary = "Upload a single File")
     public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file) throws Exception {
-        return new ResponseEntity<>(fireBaseService.uploadFile(file), HttpStatus.CREATED);
+        return ResponseEntity.ok(fireBaseService.uploadFile(file));
     }
 }

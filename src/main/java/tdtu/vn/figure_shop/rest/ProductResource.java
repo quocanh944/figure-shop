@@ -1,19 +1,28 @@
 package tdtu.vn.figure_shop.rest;
 
-import io.swagger.v3.oas.annotations.Operation;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import tdtu.vn.figure_shop.dto.CreateDTO;
+import tdtu.vn.figure_shop.dto.CreateProductDTO;
 import tdtu.vn.figure_shop.dto.ProductDTO;
 import tdtu.vn.figure_shop.dto.ProductDetailDTO;
 import tdtu.vn.figure_shop.service.ProductService;
+
+import java.io.IOException;
 
 
 @RestController
@@ -56,10 +65,60 @@ public class ProductResource {
                     value = "size",
                     defaultValue = "9",
                     required = false
-            ) Integer size) {
+            ) Integer size,
+            @RequestParam(defaultValue = "ASC") String sort
+            ) {
 
-        return ResponseEntity.ok(productService.findAllByFilm(page, size, filmId));
+        return ResponseEntity.ok(productService.findAllByFilm(page, size, filmId,sort));
     }
+    @GetMapping("/brand/{id}")
+    public ResponseEntity<Page<ProductDTO>> getProductsByBrand(
+            @PathVariable(name = "id") Long brandId,
+            @RequestParam(value = "page", defaultValue = "0",required = false) int page,
+            @RequestParam(value = "size", defaultValue = "15",required = false) int size,
+            @RequestParam(defaultValue = "ASC") String sort){
+        return ResponseEntity.ok(productService.findProductBrand(brandId,page,size,sort));
+    }
+    @GetMapping("/byPriceRange")
+    @SecurityRequirements()
+    public ResponseEntity<Page<ProductDTO>> getProductByPriceBetween(
+            @RequestParam double minPrice,
+            @RequestParam double maxPrice,
+            @RequestParam(value = "page",
+                    defaultValue = "0",
+                    required = false) int page,
+            @RequestParam(value = "size",
+                    defaultValue = "9",
+                    required = false) int size,
+            @RequestParam(defaultValue = "ASC") String direction){
+
+        Page<ProductDTO> products = productService.findProductPriceBetween(minPrice, maxPrice,page,size,direction);
+        return ResponseEntity.ok(products);
+    }
+
+
+
+    @GetMapping("/search")
+    @SecurityRequirements()
+    public ResponseEntity<Page<ProductDTO>> getSearch(
+            @RequestParam String name,
+            @RequestParam(value = "page",
+                    defaultValue = "0",
+                    required = false
+            )int page,
+            @RequestParam(value = "size",
+                    defaultValue = "9",
+                    required = false)
+            int size,
+            @RequestParam(defaultValue = "ASC") String direction
+    ){
+        Page<ProductDTO> productDTOS = productService.findProductsByName(name,page,size,direction);
+
+        return ResponseEntity.ok(productDTOS);
+    }
+
+
+
 
     @GetMapping("/{id}")
     @SecurityRequirements()
@@ -67,19 +126,85 @@ public class ProductResource {
         return ResponseEntity.ok(productService.get(id));
     }
 
-    @PostMapping
+    @PostMapping(consumes = {
+            MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE
+    })
     @ApiResponse(responseCode = "201")
-    public ResponseEntity<Long> createProduct(@RequestBody @Valid final ProductDTO productDTO) {
-        final Long createdId = productService.create(productDTO);
-        return new ResponseEntity<>(createdId, HttpStatus.CREATED);
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Product DTO",
+            content = @Content(
+                    schema = @Schema(implementation = CreateProductDTO.class),
+                    mediaType = MediaType.MULTIPART_FORM_DATA_VALUE
+            )
+    )
+    public ResponseEntity<String> createProduct(
+            @RequestPart("file") MultipartFile file,
+            @RequestPart("product") String product
+            ) throws IOException {
+        ProductDTO productDTO = new ProductDTO();
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            productDTO = objectMapper.readValue(product, ProductDTO.class);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Cannot convert json!");
+        }
+
+        productService.createProduct(
+                productDTO.getName(),
+                productDTO.getPrice(),
+                productDTO.getQuantity(),
+                productDTO.getDescription(),
+                file
+        );
+        return new ResponseEntity<>("successfully",HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Long> updateProduct(@PathVariable(name = "id") final Long id,
-            @RequestBody @Valid final ProductDTO productDTO) {
-        productService.update(id, productDTO);
-        return ResponseEntity.ok(id);
+    @PutMapping(value = "/{id}", consumes = {
+            MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE
+    })
+    @ApiResponse(responseCode = "201")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Product DTO",
+            content = @Content(
+                    schema = @Schema(implementation = CreateProductDTO.class),
+                    mediaType = MediaType.MULTIPART_FORM_DATA_VALUE
+            )
+    )
+    public ResponseEntity<String> update(
+            @PathVariable(name = "id") Long productId,
+            @RequestPart(value = "file", required = false) MultipartFile file,
+            @RequestPart("product") String product
+          )throws IOException {
+        ProductDTO productDTO = new ProductDTO();
+        try{
+            ObjectMapper objectMapper = new ObjectMapper();
+            productDTO = objectMapper.readValue(product, ProductDTO.class);
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Cannot convert json!");
+        }
+
+        productService.updateProduct(
+                productId,
+                productDTO.getName(),
+                productDTO.getPrice(),
+                productDTO.getQuantity(),
+                productDTO.getDescription(),
+                file,
+                productDTO.getBrand(),
+                productDTO.getFilm()
+        );
+        return ResponseEntity.ok("Product updated successfully");
     }
+
+//    @PutMapping("/{id}")
+//    public ResponseEntity<Long> updateProduct(@PathVariable(name = "id") final Long id,
+//            @RequestBody @Valid final ProductDTO productDTO) {
+//        productService.update(id, productDTO);
+//        return ResponseEntity.ok(id);
+//    }
+
+
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
@@ -87,5 +212,7 @@ public class ProductResource {
         productService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+
 
 }

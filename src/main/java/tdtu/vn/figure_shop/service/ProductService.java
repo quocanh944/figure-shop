@@ -1,12 +1,14 @@
 package tdtu.vn.figure_shop.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import tdtu.vn.figure_shop.domain.Brand;
 import tdtu.vn.figure_shop.domain.Film;
 import tdtu.vn.figure_shop.domain.Product;
+import tdtu.vn.figure_shop.dto.CreateDTO;
 import tdtu.vn.figure_shop.dto.MediaDTO;
 import tdtu.vn.figure_shop.dto.ProductDTO;
 import tdtu.vn.figure_shop.dto.ProductDetailDTO;
@@ -17,6 +19,7 @@ import tdtu.vn.figure_shop.repos.MediaRepository;
 import tdtu.vn.figure_shop.repos.ProductRepository;
 import tdtu.vn.figure_shop.util.NotFoundException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,19 +32,45 @@ public class ProductService {
     private final FilmRepository filmRepository;
     private final BrandRepository brandRepository;
     private final MediaRepository mediaRepository;
+    private final FireBaseService fireBaseService;
 
     public Page<ProductDTO> findAll(Integer page, Integer size) {
         Page<Product> pageEntities = productRepository.findAll(PageRequest.of(page, size));
         return pageEntities.map((product -> mapToDTO(product, new ProductDTO())));
     }
 
-    public Page<ProductDTO> findAllByFilm(Integer page, Integer size, Long id) {
+    public Page<ProductDTO> findAllByFilm(Integer page, Integer size, Long id,String sortDirection) {
         Film film = filmRepository.findById(id).orElseThrow();
-
-        Page<Product> pageEntities = productRepository.findAllByFilm(film, PageRequest.of(page, size));
+        Sort.Direction direction= sortDirection.equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction,"price");
+        Page<Product> pageEntities = productRepository.findAllByFilm(film, PageRequest.of(page, size,sort));
 
         return pageEntities.map(product -> mapToDTO(product, new ProductDTO()));
     }
+
+    public Page<ProductDTO> findProductsByName(String name,Integer page, Integer size,String sortDirection){
+        Sort.Direction direction= sortDirection.equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction,"price");
+        Page<Product> products = productRepository.findByNameContainingIgnoreCase(name,PageRequest.of(page,size,sort));
+        return products.map(product -> mapToDTO(product,new ProductDTO()));
+    }
+
+    public Page<ProductDTO> findProductBrand(Long brandId,int page,int size,String sortDirection){
+        Brand brand = brandRepository.findById(brandId).orElseThrow();
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("ASC") ?Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction,"price");
+//
+        Page<Product> products = productRepository.findByBrand(brand,PageRequest.of(page,size,sort));
+        return products.map(product -> mapToDTO(product,new ProductDTO()));
+    }
+
+    public Page<ProductDTO> findProductPriceBetween(double minPrice, double maxPrice,int page,int size,String sortDirection){
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("ASC") ?Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction,"price");
+        Page<Product> products =productRepository.findByPriceBetween(minPrice,maxPrice,PageRequest.of(page,size,sort));
+        return products.map(product -> mapToDTO(product,new ProductDTO()));
+    }
+
 
     public ProductDetailDTO get(final Long id) {
         return productRepository.findById(id)
@@ -60,6 +89,34 @@ public class ProductService {
                 .orElseThrow(NotFoundException::new);
         mapToEntity(productDTO, product);
         productRepository.save(product);
+    }
+
+    public void updateProduct(
+            Long productId,
+            String name,
+            Double price,
+            int quantity,
+            String description,
+            MultipartFile image,
+            Long brandId,
+            Long filmId
+    ) throws IOException {
+        Product productToUpdate = productRepository.findById(productId).orElseThrow(() -> new EntityNotFoundException("Product not found"));
+        Brand brand = brandRepository.findById(brandId).orElseThrow(() -> new EntityNotFoundException("Brand not found"));
+        Film film = filmRepository.findById(filmId).orElseThrow(() -> new EntityNotFoundException("Film not found"));
+        productToUpdate.setName(name);
+        productToUpdate.setPrice(price);
+        productToUpdate.setQuantity(quantity);
+        productToUpdate.setDescription(description);
+        productToUpdate.setBrand(brand);
+        productToUpdate.setFilm(film);
+
+        if(image != null && image.getSize() > 0){
+            String imageURL = String.valueOf(fireBaseService.uploadFile(image));
+            System.out.println("Delete current image: " + fireBaseService.deleteFileInFirebase(productToUpdate.getImage()));
+            productToUpdate.setImage(imageURL);
+        }
+        productRepository.save(productToUpdate);
     }
 
     public void delete(final Long id) {
@@ -119,6 +176,18 @@ public class ProductService {
         productDetailDTO.setFilm(product.getFilm() == null ? null : product.getFilm().getId());
         productDetailDTO.setBrand(product.getBrand() == null ? null : product.getBrand().getId());
         return productDetailDTO;
+    }
+    public void createProduct(String name, Double price, int quantity, String description, MultipartFile image) throws IOException {
+        String imageURL = String.valueOf(fireBaseService.uploadFile(image));
+        Product product = new Product();
+        product.setName(name);
+        product.setImage(imageURL);
+        product.setQuantity(quantity);
+        product.setPrice(price);
+        product.setDescription(description);
+        System.out.println(imageURL);
+        productRepository.save(product);
+
     }
     public Product getProductById(Long id) {
         return productRepository.findById(id).orElse(null);
