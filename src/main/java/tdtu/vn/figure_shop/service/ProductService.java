@@ -8,10 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import tdtu.vn.figure_shop.domain.Brand;
 import tdtu.vn.figure_shop.domain.Film;
 import tdtu.vn.figure_shop.domain.Product;
-import tdtu.vn.figure_shop.dto.CreateDTO;
-import tdtu.vn.figure_shop.dto.MediaDTO;
-import tdtu.vn.figure_shop.dto.ProductDTO;
-import tdtu.vn.figure_shop.dto.ProductDetailDTO;
+import tdtu.vn.figure_shop.dto.*;
 import tdtu.vn.figure_shop.model.MediaEnum;
 import tdtu.vn.figure_shop.repos.BrandRepository;
 import tdtu.vn.figure_shop.repos.FilmRepository;
@@ -33,42 +30,46 @@ public class ProductService {
     private final BrandRepository brandRepository;
     private final MediaRepository mediaRepository;
     private final FireBaseService fireBaseService;
+    private final FilmService filmService;
+    private final BrandService brandService;
 
-    public Page<ProductDTO> findAll(Integer page, Integer size) {
-        Page<Product> pageEntities = productRepository.findAll(PageRequest.of(page, size));
-        return pageEntities.map((product -> mapToDTO(product, new ProductDTO())));
+    public Page<ProductDetailDTO> findAll(Integer page, Integer size, String sortDirection) {
+        Sort.Direction direction= sortDirection.equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction,"price");
+        Page<Product> pageEntities = productRepository.findAll(PageRequest.of(page, size, sort));
+        return pageEntities.map((product -> mapToDetailDTO(product, new ProductDetailDTO())));
     }
 
-    public Page<ProductDTO> findAllByFilm(Integer page, Integer size, Long id,String sortDirection) {
+    public Page<ProductDetailDTO> findAllByFilm(Integer page, Integer size, Long id,String sortDirection) {
         Film film = filmRepository.findById(id).orElseThrow();
         Sort.Direction direction= sortDirection.equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
         Sort sort = Sort.by(direction,"price");
         Page<Product> pageEntities = productRepository.findAllByFilm(film, PageRequest.of(page, size,sort));
 
-        return pageEntities.map(product -> mapToDTO(product, new ProductDTO()));
+        return pageEntities.map(product -> mapToDetailDTO(product, new ProductDetailDTO()));
     }
 
-    public Page<ProductDTO> findProductsByName(String name,Integer page, Integer size,String sortDirection){
+    public Page<ProductDetailDTO> findProductsByName(String name,Integer page, Integer size,String sortDirection){
         Sort.Direction direction= sortDirection.equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
         Sort sort = Sort.by(direction,"price");
         Page<Product> products = productRepository.findByNameContainingIgnoreCase(name,PageRequest.of(page,size,sort));
-        return products.map(product -> mapToDTO(product,new ProductDTO()));
+        return products.map(product -> mapToDetailDTO(product,new ProductDetailDTO()));
     }
 
-    public Page<ProductDTO> findProductBrand(Long brandId,int page,int size,String sortDirection){
+    public Page<ProductDetailDTO> findProductBrand(Long brandId,int page,int size,String sortDirection){
         Brand brand = brandRepository.findById(brandId).orElseThrow();
         Sort.Direction direction = sortDirection.equalsIgnoreCase("ASC") ?Sort.Direction.ASC : Sort.Direction.DESC;
         Sort sort = Sort.by(direction,"price");
 //
         Page<Product> products = productRepository.findByBrand(brand,PageRequest.of(page,size,sort));
-        return products.map(product -> mapToDTO(product,new ProductDTO()));
+        return products.map(product -> mapToDetailDTO(product,new ProductDetailDTO()));
     }
 
-    public Page<ProductDTO> findProductPriceBetween(double minPrice, double maxPrice,int page,int size,String sortDirection){
+    public Page<ProductDetailDTO> findProductPriceBetween(double minPrice, double maxPrice,int page,int size,String sortDirection){
         Sort.Direction direction = sortDirection.equalsIgnoreCase("ASC") ?Sort.Direction.ASC : Sort.Direction.DESC;
         Sort sort = Sort.by(direction,"price");
         Page<Product> products =productRepository.findByPriceBetween(minPrice,maxPrice,PageRequest.of(page,size,sort));
-        return products.map(product -> mapToDTO(product,new ProductDTO()));
+        return products.map(product -> mapToDetailDTO(product,new ProductDetailDTO()));
     }
 
 
@@ -173,8 +174,22 @@ public class ProductService {
         }).toList());
 
         productDetailDTO.setMedias(medias);
-        productDetailDTO.setFilm(product.getFilm() == null ? null : product.getFilm().getId());
-        productDetailDTO.setBrand(product.getBrand() == null ? null : product.getBrand().getId());
+        productDetailDTO.setFilm(
+                product.getFilm() == null
+                        ? null
+                        : filmService.mapToDTO(
+                                filmRepository.findById(product.getFilm().getId()).orElseThrow(),
+                                new FilmDTO()
+                )
+        );
+        productDetailDTO.setBrand(
+                product.getBrand() == null
+                        ? null
+                        : brandService.mapToDTO(
+                        brandRepository.findById(product.getFilm().getId()).orElseThrow(),
+                        new BrandDTO()
+                )
+        );
         return productDetailDTO;
     }
     public void createProduct(String name, Double price, int quantity, String description, MultipartFile image) throws IOException {

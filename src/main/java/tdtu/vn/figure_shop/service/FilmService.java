@@ -47,7 +47,7 @@ public class FilmService {
         filmRepository.deleteById(id);
     }
 
-    private FilmDTO mapToDTO(final Film film, final FilmDTO filmDTO) {
+    public FilmDTO mapToDTO(final Film film, final FilmDTO filmDTO) {
         filmDTO.setId(film.getId());
         filmDTO.setName(film.getName());
         return filmDTO;

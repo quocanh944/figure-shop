@@ -5,18 +5,13 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
-import jakarta.validation.Valid;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import tdtu.vn.figure_shop.dto.CreateDTO;
 import tdtu.vn.figure_shop.dto.CreateProductDTO;
 import tdtu.vn.figure_shop.dto.ProductDTO;
 import tdtu.vn.figure_shop.dto.ProductDetailDTO;
@@ -37,7 +32,7 @@ public class ProductResource {
 
     @GetMapping
     @SecurityRequirements()
-    public ResponseEntity<Page<ProductDTO>> getAllProducts(
+    public ResponseEntity<Page<ProductDetailDTO>> getAllProducts(
             @RequestParam(
                     value = "page",
                     defaultValue = "0",
@@ -47,14 +42,16 @@ public class ProductResource {
                     value = "size",
                     defaultValue = "9",
                     required = false
-            ) Integer size) {
+            ) Integer size,
+            @RequestParam(defaultValue = "ASC") String sort
+    ) {
 
-        return ResponseEntity.ok(productService.findAll(page, size));
+        return ResponseEntity.ok(productService.findAll(page, size, sort));
     }
 
     @GetMapping("/film/{id}")
     @SecurityRequirements()
-    public ResponseEntity<Page<ProductDTO>> getAllProductsByFilm(
+    public ResponseEntity<Page<ProductDetailDTO>> getAllProductsByFilm(
             @PathVariable(name = "id") Long filmId,
             @RequestParam(
                     value = "page",
@@ -67,12 +64,12 @@ public class ProductResource {
                     required = false
             ) Integer size,
             @RequestParam(defaultValue = "ASC") String sort
-            ) {
+    ) {
 
         return ResponseEntity.ok(productService.findAllByFilm(page, size, filmId,sort));
     }
     @GetMapping("/brand/{id}")
-    public ResponseEntity<Page<ProductDTO>> getProductsByBrand(
+    public ResponseEntity<Page<ProductDetailDTO>> getProductsByBrand(
             @PathVariable(name = "id") Long brandId,
             @RequestParam(value = "page", defaultValue = "0",required = false) int page,
             @RequestParam(value = "size", defaultValue = "15",required = false) int size,
@@ -81,7 +78,7 @@ public class ProductResource {
     }
     @GetMapping("/byPriceRange")
     @SecurityRequirements()
-    public ResponseEntity<Page<ProductDTO>> getProductByPriceBetween(
+    public ResponseEntity<Page<ProductDetailDTO>> getProductByPriceBetween(
             @RequestParam double minPrice,
             @RequestParam double maxPrice,
             @RequestParam(value = "page",
@@ -92,7 +89,7 @@ public class ProductResource {
                     required = false) int size,
             @RequestParam(defaultValue = "ASC") String direction){
 
-        Page<ProductDTO> products = productService.findProductPriceBetween(minPrice, maxPrice,page,size,direction);
+        Page<ProductDetailDTO> products = productService.findProductPriceBetween(minPrice, maxPrice,page,size,direction);
         return ResponseEntity.ok(products);
     }
 
@@ -100,7 +97,7 @@ public class ProductResource {
 
     @GetMapping("/search")
     @SecurityRequirements()
-    public ResponseEntity<Page<ProductDTO>> getSearch(
+    public ResponseEntity<Page<ProductDetailDTO>> getSearch(
             @RequestParam String name,
             @RequestParam(value = "page",
                     defaultValue = "0",
@@ -112,7 +109,7 @@ public class ProductResource {
             int size,
             @RequestParam(defaultValue = "ASC") String direction
     ){
-        Page<ProductDTO> productDTOS = productService.findProductsByName(name,page,size,direction);
+        Page<ProductDetailDTO> productDTOS = productService.findProductsByName(name,page,size,direction);
 
         return ResponseEntity.ok(productDTOS);
     }
