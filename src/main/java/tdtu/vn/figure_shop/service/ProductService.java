@@ -94,7 +94,16 @@ public class ProductService {
         productRepository.save(product);
     }
 
-    public void updateProduct(Long productId, String name, Double price, int quantity, String description,MultipartFile image,Long brandId, Long filmId) throws IOException {
+    public void updateProduct(
+            Long productId,
+            String name,
+            Double price,
+            int quantity,
+            String description,
+            MultipartFile image,
+            Long brandId,
+            Long filmId
+    ) throws IOException {
         Product productToUpdate = productRepository.findById(productId).orElseThrow(() -> new EntityNotFoundException("Product not found"));
         Brand brand = brandRepository.findById(brandId).orElseThrow(() -> new EntityNotFoundException("Brand not found"));
         Film film = filmRepository.findById(filmId).orElseThrow(() -> new EntityNotFoundException("Film not found"));
@@ -105,9 +114,9 @@ public class ProductService {
         productToUpdate.setBrand(brand);
         productToUpdate.setFilm(film);
 
-
-        if(image != null && image.isEmpty()){
+        if(image != null && image.getSize() > 0){
             String imageURL = String.valueOf(fireBaseService.uploadFile(image));
+            System.out.println("Delete current image: " + fireBaseService.deleteFileInFirebase(productToUpdate.getImage()));
             productToUpdate.setImage(imageURL);
         }
         productRepository.save(productToUpdate);

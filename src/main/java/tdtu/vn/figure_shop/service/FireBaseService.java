@@ -1,10 +1,7 @@
 package tdtu.vn.figure_shop.service;
 
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.storage.BlobId;
-import com.google.cloud.storage.BlobInfo;
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageOptions;
+import com.google.cloud.storage.*;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -44,6 +41,17 @@ public class FireBaseService {
         return generateImageUrl(objectName);
     }
 
+    public boolean deleteFileInFirebase(String url) throws IOException {
+        Resource resource = new ClassPathResource(FB_SDK_JSON);
+        Storage storage = StorageOptions.newBuilder()
+                .setCredentials(GoogleCredentials.fromStream(resource.getInputStream()))
+                .setProjectId(FB_PROJECT_ID)
+                .build()
+                .getService();
+        BlobId blobId = BlobId.of(STORAGE_ID, retrieveNameByUrl(url));
+        return storage.delete(blobId);
+    }
+
     private File convertMultiPartToFile(MultipartFile file) throws IOException {
         File convertedFile = new File(Objects.requireNonNull(file.getOriginalFilename()));
         FileOutputStream fos = new FileOutputStream(convertedFile);
@@ -58,5 +66,9 @@ public class FireBaseService {
 
     private String generateImageUrl(String name) {
         return "https://" + FB_STORAGE_URL + name + "?alt=media&token=" + FB_ACCESS_TOKEN;
+    }
+
+    private String retrieveNameByUrl(String url) {
+        return url.substring(url.indexOf("/o/") + 3, url.indexOf("?alt="));
     }
 }

@@ -147,7 +147,7 @@ public class ProductResource {
             ObjectMapper objectMapper = new ObjectMapper();
             productDTO = objectMapper.readValue(product, ProductDTO.class);
         } catch (Exception e) {
-            System.out.println("ERROR");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Cannot convert json!");
         }
 
         productService.createProduct(
@@ -173,15 +173,15 @@ public class ProductResource {
     )
     public ResponseEntity<String> update(
             @PathVariable(name = "id") Long productId,
-            @RequestPart("file") MultipartFile file,
+            @RequestPart(value = "file", required = false) MultipartFile file,
             @RequestPart("product") String product
           )throws IOException {
         ProductDTO productDTO = new ProductDTO();
         try{
             ObjectMapper objectMapper = new ObjectMapper();
             productDTO = objectMapper.readValue(product, ProductDTO.class);
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred");
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Cannot convert json!");
         }
 
         productService.updateProduct(
@@ -191,8 +191,8 @@ public class ProductResource {
                 productDTO.getQuantity(),
                 productDTO.getDescription(),
                 file,
-                productDTO.getFilm(),
-                productDTO.getBrand()
+                productDTO.getBrand(),
+                productDTO.getFilm()
         );
         return ResponseEntity.ok("Product updated successfully");
     }

@@ -74,6 +74,7 @@ public class RestExceptionHandler {
         final ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         errorResponse.setException(exception.getClass().getSimpleName());
+        errorResponse.setMessage(exception.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
