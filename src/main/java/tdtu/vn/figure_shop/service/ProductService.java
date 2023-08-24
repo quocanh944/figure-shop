@@ -1,10 +1,8 @@
 package tdtu.vn.figure_shop.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import tdtu.vn.figure_shop.domain.Brand;
@@ -44,31 +42,35 @@ public class ProductService {
         return pageEntities.map((product -> mapToDTO(product, new ProductDTO())));
     }
 
-    public Page<ProductDTO> findAllByFilm(Integer page, Integer size, Long id) {
+    public Page<ProductDTO> findAllByFilm(Integer page, Integer size, Long id,String sortDirection) {
         Film film = filmRepository.findById(id).orElseThrow();
-
-        Page<Product> pageEntities = productRepository.findAllByFilm(film, PageRequest.of(page, size));
+        Sort.Direction direction= sortDirection.equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction,"price");
+        Page<Product> pageEntities = productRepository.findAllByFilm(film, PageRequest.of(page, size,sort));
 
         return pageEntities.map(product -> mapToDTO(product, new ProductDTO()));
     }
 
-    public Page<ProductDTO> findProductsByName(String name,Pageable pageable){
-
-        Page<Product> products = productRepository.findByNameContainingIgnoreCase(name,pageable);
+    public Page<ProductDTO> findProductsByName(String name,Integer page, Integer size,String sortDirection){
+        Sort.Direction direction= sortDirection.equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction,"price");
+        Page<Product> products = productRepository.findByNameContainingIgnoreCase(name,PageRequest.of(page,size,sort));
         return products.map(product -> mapToDTO(product,new ProductDTO()));
     }
 
-    public Page<ProductDTO> findProductBrand(Long brandId,int page,int size){
+    public Page<ProductDTO> findProductBrand(Long brandId,int page,int size,String sortDirection){
         Brand brand = brandRepository.findById(brandId).orElseThrow();
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("ASC") ?Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction,"price");
 //
-        Page<Product> products = productRepository.findByBrand(brand,PageRequest.of(page,size));
+        Page<Product> products = productRepository.findByBrand(brand,PageRequest.of(page,size,sort));
         return products.map(product -> mapToDTO(product,new ProductDTO()));
     }
 
-
-
-    public Page<ProductDTO> findProductPriceBetween(double minPrice, double maxPrice,Pageable pageable){
-        Page<Product> products =productRepository.findByPriceBetween(minPrice,maxPrice,pageable);
+    public Page<ProductDTO> findProductPriceBetween(double minPrice, double maxPrice,int page,int size,String sortDirection){
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("ASC") ?Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction,"price");
+        Page<Product> products =productRepository.findByPriceBetween(minPrice,maxPrice,PageRequest.of(page,size,sort));
         return products.map(product -> mapToDTO(product,new ProductDTO()));
     }
 
@@ -92,17 +94,19 @@ public class ProductService {
         productRepository.save(product);
     }
 
-    public void updateProduct(Long id, CreateDTO createDTO,MultipartFile image) throws IOException {
-        Product existingProduct = productRepository.findById(id).orElseThrow(NotFoundException::new);
-        existingProduct.setName(createDTO.getName());
-        existingProduct.setPrice(createDTO.getPrice());
-        existingProduct.setQuantity(createDTO.getQuantity());
-        existingProduct.setDescription(createDTO.getDescription());
+    public void updateProduct(Long productId, String name, Double price, int quantity, String description,MultipartFile image) throws IOException {
+        Product productToUpdate = productRepository.findById(productId).orElseThrow(() -> new EntityNotFoundException("Product not found"));
+        productToUpdate.setName(name);
+        productToUpdate.setPrice(price);
+        productToUpdate.setQuantity(quantity);
+        productToUpdate.setDescription(description);
+
+
         if(image != null && image.isEmpty()){
             String imageURL = String.valueOf(fireBaseService.uploadFile(image));
-            existingProduct.setImage(imageURL);
+            productToUpdate.setImage(imageURL);
         }
-        productRepository.save(existingProduct);
+        productRepository.save(productToUpdate);
     }
 
     public void delete(final Long id) {

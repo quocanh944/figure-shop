@@ -65,11 +65,20 @@ public class ProductResource {
                     value = "size",
                     defaultValue = "9",
                     required = false
-            ) Integer size) {
+            ) Integer size,
+            @RequestParam(defaultValue = "ASC") String sort
+            ) {
 
-        return ResponseEntity.ok(productService.findAllByFilm(page, size, filmId));
+        return ResponseEntity.ok(productService.findAllByFilm(page, size, filmId,sort));
     }
-
+    @GetMapping("/brand/{id}")
+    public ResponseEntity<Page<ProductDTO>> getProductsByBrand(
+            @PathVariable(name = "id") Long brandId,
+            @RequestParam(value = "page", defaultValue = "0",required = false) int page,
+            @RequestParam(value = "size", defaultValue = "15",required = false) int size,
+            @RequestParam(defaultValue = "ASC") String sort){
+        return ResponseEntity.ok(productService.findProductBrand(brandId,page,size,sort));
+    }
     @GetMapping("/byPriceRange")
     @SecurityRequirements()
     public ResponseEntity<Page<ProductDTO>> getProductByPriceBetween(
@@ -82,9 +91,8 @@ public class ProductResource {
                     defaultValue = "9",
                     required = false) int size,
             @RequestParam(defaultValue = "ASC") String direction){
-        Sort.Direction sort = direction.equalsIgnoreCase("ASC")? Sort.Direction.ASC : Sort.Direction.DESC;
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sort,"price"));
-        Page<ProductDTO> products = productService.findProductPriceBetween(minPrice, maxPrice,pageable);
+
+        Page<ProductDTO> products = productService.findProductPriceBetween(minPrice, maxPrice,page,size,direction);
         return ResponseEntity.ok(products);
     }
 
@@ -104,23 +112,13 @@ public class ProductResource {
             int size,
             @RequestParam(defaultValue = "ASC") String direction
     ){
-        Sort.Direction sortDirection = direction.equalsIgnoreCase("ASC")? Sort.Direction.ASC : Sort.Direction.DESC;
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection,"price"));
-        Page<ProductDTO> productDTOS = productService.findProductsByName(name,pageable);
+        Page<ProductDTO> productDTOS = productService.findProductsByName(name,page,size,direction);
 
         return ResponseEntity.ok(productDTOS);
     }
 
 
 
-    @GetMapping("/brand")
-    public ResponseEntity<Page<ProductDTO>> getProductsByBrand(
-            @RequestParam Long brandId,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "15") int size){
-        Page<ProductDTO> productDTOS = productService.findProductBrand(brandId,page,size);
-        return ResponseEntity.ok(productDTOS);
-    }
 
     @GetMapping("/{id}")
     @SecurityRequirements()
@@ -161,36 +159,48 @@ public class ProductResource {
         );
         return new ResponseEntity<>("successfully",HttpStatus.CREATED);
     }
-    @PutMapping(value = "/update/{id}", consumes = {"multipart/form-data"
+
+    @PutMapping(value = "/{id}", consumes = {
+            MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE
     })
+    @ApiResponse(responseCode = "201")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Product DTO",
+            content = @Content(
+                    schema = @Schema(implementation = CreateProductDTO.class),
+                    mediaType = MediaType.MULTIPART_FORM_DATA_VALUE
+            )
+    )
     public ResponseEntity<String> update(
             @PathVariable(name = "id") Long productId,
-            @RequestParam("name") String name,
-            @RequestParam("file") MultipartFile file,
-            @RequestParam("price") Double price,
-            @RequestParam("quantity") int quantity,
-            @RequestParam("description") String description
-
-          ){
+            @RequestPart("file") MultipartFile file,
+            @RequestPart("product") String product
+          )throws IOException {
+        ProductDTO productDTO = new ProductDTO();
         try{
-            CreateDTO createDTO = new CreateDTO();
-            createDTO.setName(name);
-            createDTO.setPrice(price);
-            createDTO.setQuantity(quantity);
-            createDTO.setDescription(description);
-            productService.updateProduct(productId,createDTO,file);
-            return ResponseEntity.ok("Product updated successfully");
+            ObjectMapper objectMapper = new ObjectMapper();
+            productDTO = objectMapper.readValue(product, ProductDTO.class);
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred");
         }
+
+        productService.updateProduct(
+                productId,
+                productDTO.getName(),
+                productDTO.getPrice(),
+                productDTO.getQuantity(),
+                productDTO.getDescription(),
+                file
+        );
+        return ResponseEntity.ok("Product updated successfully");
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Long> updateProduct(@PathVariable(name = "id") final Long id,
-            @RequestBody @Valid final ProductDTO productDTO) {
-        productService.update(id, productDTO);
-        return ResponseEntity.ok(id);
-    }
+//    @PutMapping("/{id}")
+//    public ResponseEntity<Long> updateProduct(@PathVariable(name = "id") final Long id,
+//            @RequestBody @Valid final ProductDTO productDTO) {
+//        productService.update(id, productDTO);
+//        return ResponseEntity.ok(id);
+//    }
 
 
 
