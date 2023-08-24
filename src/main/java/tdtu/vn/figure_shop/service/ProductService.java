@@ -94,12 +94,16 @@ public class ProductService {
         productRepository.save(product);
     }
 
-    public void updateProduct(Long productId, String name, Double price, int quantity, String description,MultipartFile image) throws IOException {
+    public void updateProduct(Long productId, String name, Double price, int quantity, String description,MultipartFile image,Long brandId, Long filmId) throws IOException {
         Product productToUpdate = productRepository.findById(productId).orElseThrow(() -> new EntityNotFoundException("Product not found"));
+        Brand brand = brandRepository.findById(brandId).orElseThrow(() -> new EntityNotFoundException("Brand not found"));
+        Film film = filmRepository.findById(filmId).orElseThrow(() -> new EntityNotFoundException("Film not found"));
         productToUpdate.setName(name);
         productToUpdate.setPrice(price);
         productToUpdate.setQuantity(quantity);
         productToUpdate.setDescription(description);
+        productToUpdate.setBrand(brand);
+        productToUpdate.setFilm(film);
 
 
         if(image != null && image.isEmpty()){

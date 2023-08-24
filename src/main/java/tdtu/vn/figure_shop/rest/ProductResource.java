@@ -190,7 +190,9 @@ public class ProductResource {
                 productDTO.getPrice(),
                 productDTO.getQuantity(),
                 productDTO.getDescription(),
-                file
+                file,
+                productDTO.getFilm(),
+                productDTO.getBrand()
         );
         return ResponseEntity.ok("Product updated successfully");
     }
