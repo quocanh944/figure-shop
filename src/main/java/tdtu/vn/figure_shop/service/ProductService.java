@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import tdtu.vn.figure_shop.domain.Brand;
 import tdtu.vn.figure_shop.domain.Film;
-import tdtu.vn.figure_shop.domain.Media;
 import tdtu.vn.figure_shop.domain.Product;
 import tdtu.vn.figure_shop.dto.CreateDTO;
 import tdtu.vn.figure_shop.dto.MediaDTO;
@@ -22,9 +21,7 @@ import tdtu.vn.figure_shop.util.NotFoundException;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -126,7 +123,7 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
-    private ProductDTO mapToDTO(final Product product, final ProductDTO productDTO) {
+    public ProductDTO mapToDTO(final Product product, final ProductDTO productDTO) {
         productDTO.setId(product.getId());
         productDTO.setName(product.getName());
         productDTO.setPrice(product.getPrice());
@@ -180,8 +177,6 @@ public class ProductService {
         productDetailDTO.setBrand(product.getBrand() == null ? null : product.getBrand().getId());
         return productDetailDTO;
     }
-
-
     public void createProduct(String name, Double price, int quantity, String description, MultipartFile image) throws IOException {
         String imageURL = String.valueOf(fireBaseService.uploadFile(image));
         Product product = new Product();
@@ -194,7 +189,7 @@ public class ProductService {
         productRepository.save(product);
 
     }
-
-
-
+    public Product getProductById(Long id) {
+        return productRepository.findById(id).orElse(null);
+    }
 }
