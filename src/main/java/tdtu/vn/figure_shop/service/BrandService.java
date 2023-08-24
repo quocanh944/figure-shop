@@ -47,7 +47,7 @@ public class BrandService {
         brandRepository.deleteById(id);
     }
 
-    private BrandDTO mapToDTO(final Brand brand, final BrandDTO brandDTO) {
+    public BrandDTO mapToDTO(final Brand brand, final BrandDTO brandDTO) {
         brandDTO.setId(brand.getId());
         brandDTO.setName(brand.getName());
         return brandDTO;

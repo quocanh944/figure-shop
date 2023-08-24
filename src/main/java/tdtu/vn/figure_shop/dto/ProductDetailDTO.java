@@ -30,8 +30,8 @@ public class ProductDetailDTO {
     @NotNull
     private String description;
 
-    private Long film;
+    private FilmDTO film;
 
-    private Long brand;
+    private BrandDTO brand;
 
 }
