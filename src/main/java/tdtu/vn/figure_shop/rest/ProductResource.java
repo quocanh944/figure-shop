@@ -1,6 +1,7 @@
 package tdtu.vn.figure_shop.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -68,7 +69,9 @@ public class ProductResource {
 
         return ResponseEntity.ok(productService.findAllByFilm(page, size, filmId,sort));
     }
+
     @GetMapping("/brand/{id}")
+    @SecurityRequirements()
     public ResponseEntity<Page<ProductDetailDTO>> getProductsByBrand(
             @PathVariable(name = "id") Long brandId,
             @RequestParam(value = "page", defaultValue = "0",required = false) int page,
@@ -76,6 +79,7 @@ public class ProductResource {
             @RequestParam(defaultValue = "ASC") String sort){
         return ResponseEntity.ok(productService.findProductBrand(brandId,page,size,sort));
     }
+
     @GetMapping("/byPriceRange")
     @SecurityRequirements()
     public ResponseEntity<Page<ProductDetailDTO>> getProductByPriceBetween(
@@ -92,8 +96,6 @@ public class ProductResource {
         Page<ProductDetailDTO> products = productService.findProductPriceBetween(minPrice, maxPrice,page,size,direction);
         return ResponseEntity.ok(products);
     }
-
-
 
     @GetMapping("/search")
     @SecurityRequirements()
@@ -114,9 +116,6 @@ public class ProductResource {
         return ResponseEntity.ok(productDTOS);
     }
 
-
-
-
     @GetMapping("/{id}")
     @SecurityRequirements()
     public ResponseEntity<ProductDetailDTO> getProduct(@PathVariable(name = "id") final Long id) {
@@ -134,6 +133,7 @@ public class ProductResource {
                     mediaType = MediaType.MULTIPART_FORM_DATA_VALUE
             )
     )
+    @Operation(summary = "Admin side")
     public ResponseEntity<String> createProduct(
             @RequestPart("file") MultipartFile file,
             @RequestPart("product") String product
@@ -168,6 +168,7 @@ public class ProductResource {
                     mediaType = MediaType.MULTIPART_FORM_DATA_VALUE
             )
     )
+    @Operation(summary = "Admin side")
     public ResponseEntity<String> update(
             @PathVariable(name = "id") Long productId,
             @RequestPart(value = "file", required = false) MultipartFile file,
@@ -201,10 +202,9 @@ public class ProductResource {
 //        return ResponseEntity.ok(id);
 //    }
 
-
-
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
+    @Operation(summary = "Admin side")
     public ResponseEntity<Void> deleteProduct(@PathVariable(name = "id") final Long id) {
         productService.delete(id);
         return ResponseEntity.noContent().build();
