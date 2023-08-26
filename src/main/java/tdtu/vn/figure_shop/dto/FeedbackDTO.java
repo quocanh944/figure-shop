@@ -12,5 +12,6 @@ public class FeedbackDTO {
     private String comment;
     private Long product;
     private Long user;
+    private int rate;
 
 }

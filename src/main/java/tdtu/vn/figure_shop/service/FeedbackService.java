@@ -1,6 +1,7 @@
 package tdtu.vn.figure_shop.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
@@ -8,7 +9,9 @@ import org.springframework.stereotype.Service;
 import tdtu.vn.figure_shop.domain.Feedback;
 import tdtu.vn.figure_shop.domain.Product;
 import tdtu.vn.figure_shop.domain.UserEntity;
+import tdtu.vn.figure_shop.dto.CreateFeedbackDTO;
 import tdtu.vn.figure_shop.dto.FeedbackDTO;
+import tdtu.vn.figure_shop.dto.FeedbackDetailDTO;
 import tdtu.vn.figure_shop.repos.FeedbackRepository;
 import tdtu.vn.figure_shop.repos.ProductRepository;
 import tdtu.vn.figure_shop.repos.UserEntityRepository;
@@ -36,9 +39,12 @@ public class FeedbackService {
                 .orElseThrow(NotFoundException::new);
     }
 
-    public Long create(final FeedbackDTO feedbackDTO) {
-        final Feedback feedback = new Feedback();
-        mapToEntity(feedbackDTO, feedback);
+    public Long create(final CreateFeedbackDTO createFeedbackDTO, String emailUser) {
+        Feedback feedback = new Feedback();
+        feedback.setComment(createFeedbackDTO.getComment());
+        feedback.setRate(createFeedbackDTO.getRate());
+        feedback.setUser(userEntityRepository.findByEmail(emailUser).orElseThrow());
+        feedback.setProduct(productRepository.findById(createFeedbackDTO.getProduct()).orElseThrow());
         return feedbackRepository.save(feedback).getId();
     }
 
@@ -56,13 +62,26 @@ public class FeedbackService {
     private FeedbackDTO mapToDTO(final Feedback feedback, final FeedbackDTO feedbackDTO) {
         feedbackDTO.setId(feedback.getId());
         feedbackDTO.setComment(feedback.getComment());
+        feedbackDTO.setRate(feedback.getRate());
         feedbackDTO.setProduct(feedback.getProduct() == null ? null : feedback.getProduct().getId());
         feedbackDTO.setUser(feedback.getUser() == null ? null : feedback.getUser().getId());
         return feedbackDTO;
     }
 
+    private FeedbackDetailDTO mapToDetailDTO(final Feedback feedback, final FeedbackDetailDTO feedbackDetailDTO) {
+        UserEntity user = userEntityRepository.findById(feedback.getUser().getId()).orElseThrow();
+        feedbackDetailDTO.setComment(feedback.getComment());
+        feedbackDetailDTO.setAvatar(user.getAvatar());
+        feedbackDetailDTO.setEmail(user.getEmail());
+        feedbackDetailDTO.setFullName(user.getFullName());
+        feedbackDetailDTO.setRate(feedback.getRate());
+
+        return feedbackDetailDTO;
+    }
+
     private Feedback mapToEntity(final FeedbackDTO feedbackDTO, final Feedback feedback) {
         feedback.setComment(feedbackDTO.getComment());
+        feedback.setRate(feedbackDTO.getRate());
         final Product product = feedbackDTO.getProduct() == null ? null : productRepository.findById(feedbackDTO.getProduct())
                 .orElseThrow(() -> new NotFoundException("product not found"));
         feedback.setProduct(product);
@@ -72,4 +91,11 @@ public class FeedbackService {
         return feedback;
     }
 
+    public List<FeedbackDetailDTO> findAllByProduct(Long prodId) {
+
+        return feedbackRepository.findAllByProduct(productRepository.findById(prodId).orElseThrow())
+                .stream()
+                .map(feedback -> mapToDetailDTO(feedback, new FeedbackDetailDTO()))
+                .collect(Collectors.toList());
+    }
 }
