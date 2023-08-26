@@ -21,6 +21,7 @@ public class JWTTokenProvider {
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .claim("email", email)
+                .claim("role", authentication.getAuthorities())
                 .compact();
     }
     public String getUserEmailFromToken(String token){
