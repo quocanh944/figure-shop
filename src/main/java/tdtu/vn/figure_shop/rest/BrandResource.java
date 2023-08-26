@@ -1,5 +1,6 @@
 package tdtu.vn.figure_shop.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
@@ -43,12 +44,14 @@ public class BrandResource {
 
     @PostMapping
     @ApiResponse(responseCode = "201")
+    @Operation(summary = "Admin side")
     public ResponseEntity<Long> createBrand(@RequestBody @Valid final BrandDTO brandDTO) {
         final Long createdId = brandService.create(brandDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Admin side")
     public ResponseEntity<Long> updateBrand(@PathVariable(name = "id") final Long id,
             @RequestBody @Valid final BrandDTO brandDTO) {
         brandService.update(id, brandDTO);
@@ -57,6 +60,7 @@ public class BrandResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
+    @Operation(summary = "Admin side")
     public ResponseEntity<Void> deleteBrand(@PathVariable(name = "id") final Long id) {
         brandService.delete(id);
         return ResponseEntity.noContent().build();

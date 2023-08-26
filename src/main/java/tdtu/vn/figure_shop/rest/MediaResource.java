@@ -1,5 +1,6 @@
 package tdtu.vn.figure_shop.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
@@ -43,12 +44,14 @@ public class MediaResource {
 
     @PostMapping
     @ApiResponse(responseCode = "201")
+    @Operation(summary = "Admin side")
     public ResponseEntity<Long> createMedia(@RequestBody @Valid final MediaDTO mediaDTO) {
         final Long createdId = mediaService.create(mediaDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Admin side")
     public ResponseEntity<Long> updateMedia(@PathVariable(name = "id") final Long id,
             @RequestBody @Valid final MediaDTO mediaDTO) {
         mediaService.update(id, mediaDTO);
@@ -57,6 +60,7 @@ public class MediaResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
+    @Operation(summary = "Admin side")
     public ResponseEntity<Void> deleteMedia(@PathVariable(name = "id") final Long id) {
         mediaService.delete(id);
         return ResponseEntity.noContent().build();

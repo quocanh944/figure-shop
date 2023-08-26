@@ -1,5 +1,6 @@
 package tdtu.vn.figure_shop.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
@@ -43,12 +44,14 @@ public class FilmResource {
 
     @PostMapping
     @ApiResponse(responseCode = "201")
+    @Operation(summary = "Admin side")
     public ResponseEntity<Long> createFilm(@RequestBody @Valid final FilmDTO filmDTO) {
         final Long createdId = filmService.create(filmDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Admin side")
     public ResponseEntity<Long> updateFilm(@PathVariable(name = "id") final Long id,
             @RequestBody @Valid final FilmDTO filmDTO) {
         filmService.update(id, filmDTO);
@@ -57,6 +60,7 @@ public class FilmResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
+    @Operation(summary = "Admin side")
     public ResponseEntity<Void> deleteFilm(@PathVariable(name = "id") final Long id) {
         filmService.delete(id);
         return ResponseEntity.noContent().build();
