@@ -115,6 +115,10 @@ public class SecurityConfig {
                                     HttpMethod.PUT,
                                     "/api/products/**", "/api/medias/**", "/api/films/**", "/api/brands/**"
                             ).hasAuthority("ADMIN")
+                            .requestMatchers(
+                                    HttpMethod.GET,
+                                    "/api/user/{id}", "/api/user/all-user"
+                            ).hasAuthority("ADMIN")
                             .anyRequest()
                             .authenticated();
                 });
