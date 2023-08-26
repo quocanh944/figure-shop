@@ -6,8 +6,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import tdtu.vn.figure_shop.domain.Role;
 import tdtu.vn.figure_shop.domain.UserEntity;
 import tdtu.vn.figure_shop.dto.UserDTO;
+import tdtu.vn.figure_shop.repos.OrderRepository;
 import tdtu.vn.figure_shop.repos.UserEntityRepository;
 
 import java.time.Instant;
@@ -18,6 +20,8 @@ import java.util.Optional;
 @AllArgsConstructor
 public class UserService {
     private final UserEntityRepository userEntityRepository;
+    private final OrderService orderService;
+    private final OrderRepository orderRepository;
     private PasswordEncoder passwordEncoder;
     public String getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -36,6 +40,7 @@ public class UserService {
         userDTO.setFullName(user.getFullName());
         userDTO.setAvatar(user.getAvatar());
         userDTO.setPhoneNumber(user.getPhoneNumber());
+        userDTO.setOrderDTO(orderService.getOrderDTOByUser(user));
         return userDTO;
     }
     public UserDTO getUserInfo() {
@@ -82,6 +87,9 @@ public class UserService {
         return userEntityRepository.findById(id);
     }
     public List<UserEntity> getAllUser() {
-        return userEntityRepository.findAll();
+        Role role = new Role();
+        role.setId(2L);
+        role.setName("USER");
+        return userEntityRepository.findByRoles(role);
     }
 }
