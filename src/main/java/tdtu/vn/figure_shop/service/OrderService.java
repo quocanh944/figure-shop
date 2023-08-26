@@ -94,8 +94,10 @@ public class OrderService {
         orderDTO.setOrderDetailList(orderDetailList);
         return orderDTO;
     }
-    public OrderDTO getOrderDTOByUser(UserEntity user) {
-        Order order = orderRepository.findOrderByUser(user);
-        return mapToDTO(order, new OrderDTO());
+    public List<OrderDTO> getOrderDTOByUser(UserEntity user) {
+        return (List<OrderDTO>) orderRepository.findAllByUser(user)
+                .stream()
+                .map(order -> mapToDTO(order, new OrderDTO()))
+                .toList();
     }
 }

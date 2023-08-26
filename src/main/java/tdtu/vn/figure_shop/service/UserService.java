@@ -1,13 +1,16 @@
 package tdtu.vn.figure_shop.service;
 
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import tdtu.vn.figure_shop.domain.Role;
 import tdtu.vn.figure_shop.domain.UserEntity;
+import tdtu.vn.figure_shop.dto.OrderDTO;
 import tdtu.vn.figure_shop.dto.UserDTO;
 import tdtu.vn.figure_shop.repos.OrderRepository;
 import tdtu.vn.figure_shop.repos.UserEntityRepository;
@@ -17,12 +20,23 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@AllArgsConstructor
 public class UserService {
     private final UserEntityRepository userEntityRepository;
     private final OrderService orderService;
     private final OrderRepository orderRepository;
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    public UserService(UserEntityRepository userEntityRepository,
+                       @Lazy OrderService orderService,
+                       OrderRepository orderRepository,
+                       PasswordEncoder passwordEncoder
+    ) {
+        this.userEntityRepository = userEntityRepository;
+        this.orderService = orderService;
+        this.orderRepository = orderRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
+
     public String getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
@@ -83,13 +97,16 @@ public class UserService {
         user.setUpdatedDate(Instant.now());
         userEntityRepository.save(user);
     }
-    public Optional<UserEntity> getUserById(Long id) {
-        return userEntityRepository.findById(id);
+    public Optional<UserDTO> getUserById(Long id) {
+        return userEntityRepository.findById(id).map(user -> mapToDTO(user, new UserDTO()));
     }
-    public List<UserEntity> getAllUser() {
+    public List<UserDTO> getAllUser() {
         Role role = new Role();
         role.setId(2L);
         role.setName("USER");
-        return userEntityRepository.findByRoles(role);
+        return (List<UserDTO>) userEntityRepository.findByRoles(role)
+                .stream()
+                .map(user -> mapToDTO(user, new UserDTO()))
+                .toList();
     }
 }

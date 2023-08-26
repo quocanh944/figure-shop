@@ -1,5 +1,6 @@
 package tdtu.vn.figure_shop.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,12 +53,13 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<UserEntity>> getUserById(@PathVariable Long id) {
+    @Operation(summary = "Admin side")
+    public ResponseEntity<Optional<UserDTO>> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
-
     @GetMapping("/all-user")
-    public ResponseEntity<List<UserEntity>> getAllUser() {
+    @Operation(summary = "Admin side")
+    public ResponseEntity<List<UserDTO>> getAllUser() {
         return ResponseEntity.ok(userService.getAllUser());
     }
 }

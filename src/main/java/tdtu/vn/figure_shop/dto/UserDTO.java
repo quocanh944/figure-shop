@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import tdtu.vn.figure_shop.domain.Order;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class UserDTO {
@@ -15,5 +17,5 @@ public class UserDTO {
 
     private String phoneNumber;
 
-    private OrderDTO orderDTO;
+    private List<OrderDTO> orderDTO;
 }
