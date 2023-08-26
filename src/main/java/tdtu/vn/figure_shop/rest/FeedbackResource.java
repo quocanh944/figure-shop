@@ -1,5 +1,6 @@
 package tdtu.vn.figure_shop.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
@@ -49,6 +50,7 @@ public class FeedbackResource {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Admin side")
     public ResponseEntity<Long> updateFeedback(@PathVariable(name = "id") final Long id,
             @RequestBody @Valid final FeedbackDTO feedbackDTO) {
         feedbackService.update(id, feedbackDTO);
@@ -57,6 +59,7 @@ public class FeedbackResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
+    @Operation(summary = "Admin side")
     public ResponseEntity<Void> deleteFeedback(@PathVariable(name = "id") final Long id) {
         feedbackService.delete(id);
         return ResponseEntity.noContent().build();
