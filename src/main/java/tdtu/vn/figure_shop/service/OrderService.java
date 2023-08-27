@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class OrderService {
     private final UserEntityRepository userEntityRepository;
     private final UserService userService;
+    private final EmailService emailService;
     private final OrderRepository orderRepository;
     private final OrderDetailRepository orderDetailRepository;
     private final ProductRepository productRepository;
@@ -79,6 +80,14 @@ public class OrderService {
         orderDetailRepository.saveAllAndFlush(orderDetails);
 
         cartItemService.clearItems();
+
+        String orderDetail = "Order Name: " + order.getName() +
+                "\nPhone: " + order.getPhoneNumber() +
+                "\nAddress: "+ order.getAddress()+
+                "\nTotal: " + order.getTotal()+
+                "\nDate: " + order.getCreatedDate();
+
+        emailService.sendOrderConfirmationEmail(emailUser,orderDetail);
     }
 
     public OrderDTO mapToDTO(Order order, OrderDTO orderDTO) {
