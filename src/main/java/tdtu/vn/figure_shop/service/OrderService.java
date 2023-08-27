@@ -30,6 +30,8 @@ public class OrderService {
     private final ProductRepository productRepository;
     private final OrderDetailService orderDetailService;
     private final CartItemService cartItemService;
+    private final EmailService emailService;
+
 
     public Page<OrderDTO> getOrdersRecent(Integer page, Integer size) {
 
@@ -46,7 +48,6 @@ public class OrderService {
         }
 
         cartItemService.validateCartItems();
-
         Order order = new Order();
         order.setUser(currentUser);
         order.setName(createOrderDTO.getName());
@@ -71,13 +72,23 @@ public class OrderService {
             total.updateAndGet(v -> v + product.getPrice() * cartItem.getQuantity());
             orderDetails.add(orderDetail);
         });
-
         order.setOrderDetails(orderDetails);
         order.setTotal(total.get());
         orderRepository.saveAndFlush(order);
         orderDetailRepository.saveAllAndFlush(orderDetails);
-
+        System.out.println(emailUser);
         cartItemService.clearItems();
+
+
+        // gui mail ve don hang
+
+        String orderDetail = "Order Name: " + order.getName() +
+                "\nPhone: " + order.getPhoneNumber() +
+                "\nAddress: "+ order.getAddress()+
+                "\nTotal: " + order.getTotal()+
+                "\nDate: " + order.getCreatedDate();
+
+        emailService.sendOrderConfirmationEmail(emailUser,orderDetail);
     }
 
     public OrderDTO mapToDTO(Order order, OrderDTO orderDTO) {
