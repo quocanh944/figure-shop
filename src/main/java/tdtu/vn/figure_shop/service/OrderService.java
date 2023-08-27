@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @AllArgsConstructor
 public class OrderService {
     private final UserEntityRepository userEntityRepository;
+    private final UserService userService;
     private final OrderRepository orderRepository;
     private final OrderDetailRepository orderDetailRepository;
     private final ProductRepository productRepository;
@@ -92,5 +93,11 @@ public class OrderService {
                 .toList();
         orderDTO.setOrderDetailList(orderDetailList);
         return orderDTO;
+    }
+    public List<OrderDTO> getOrderDTOByUser(UserEntity user) {
+        return (List<OrderDTO>) orderRepository.findAllByUser(user)
+                .stream()
+                .map(order -> mapToDTO(order, new OrderDTO()))
+                .toList();
     }
 }
