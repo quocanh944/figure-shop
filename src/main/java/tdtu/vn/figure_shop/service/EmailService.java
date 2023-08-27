@@ -1,29 +1,17 @@
 package tdtu.vn.figure_shop.service;
 
 import jakarta.mail.internet.MimeMessage;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
+import lombok.AllArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-import javax.mail.MessagingException;
 
 @Service
+@AllArgsConstructor
 public class EmailService {
-    @Autowired
     private final JavaMailSender javaMailSender;
 
-    public EmailService(JavaMailSender javaMailSender) {
-        this.javaMailSender = javaMailSender;
-    }
-//    public void sendOrderConfirmationEmail(String recipientEmail, String orderDetails) {
-//        SimpleMailMessage message = new SimpleMailMessage();
-//        message.setTo(recipientEmail);
-//        message.setSubject("Order Confirmation");
-//        message.setText("Thank you for your order! Here are your order details:\n" + orderDetails);
-//        javaMailSender.send(message);
-//    }
     public void sendOrderConfirmationEmail(String recipientEmail, String orderDetails) {
         MimeMessage message = javaMailSender.createMimeMessage();
         MimeMessageHelper helper;
