@@ -138,11 +138,11 @@ public class ProductResource {
             @RequestPart("file") MultipartFile file,
             @RequestPart("product") String product
             ) throws IOException {
-        ProductDTO productDTO = new ProductDTO();
+        CreateProductDTO.SubProductDTO productDTO;
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            productDTO = objectMapper.readValue(product, ProductDTO.class);
+            productDTO = objectMapper.readValue(product, CreateProductDTO.SubProductDTO.class);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Cannot convert json!");
         }
@@ -152,9 +152,11 @@ public class ProductResource {
                 productDTO.getPrice(),
                 productDTO.getQuantity(),
                 productDTO.getDescription(),
+                productDTO.getFilm(),
+                productDTO.getBrand(),
                 file
         );
-        return new ResponseEntity<>("successfully",HttpStatus.CREATED);
+        return new ResponseEntity<>("Successfully", HttpStatus.CREATED);
     }
 
     @PutMapping(value = "/{id}", consumes = {

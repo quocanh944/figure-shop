@@ -9,6 +9,7 @@ import tdtu.vn.figure_shop.domain.Brand;
 import tdtu.vn.figure_shop.domain.Film;
 import tdtu.vn.figure_shop.domain.Product;
 import tdtu.vn.figure_shop.dto.*;
+import tdtu.vn.figure_shop.exception.BadRequestException;
 import tdtu.vn.figure_shop.model.MediaEnum;
 import tdtu.vn.figure_shop.repos.BrandRepository;
 import tdtu.vn.figure_shop.repos.FilmRepository;
@@ -192,7 +193,15 @@ public class ProductService {
         );
         return productDetailDTO;
     }
-    public void createProduct(String name, Double price, int quantity, String description, MultipartFile image) throws IOException {
+    public void createProduct(
+            String name,
+            Double price,
+            int quantity,
+            String description,
+            Long filmId,
+            Long brandId,
+            MultipartFile image
+    ) throws IOException {
         String imageURL = String.valueOf(fireBaseService.uploadFile(image));
         Product product = new Product();
         product.setName(name);
@@ -200,6 +209,22 @@ public class ProductService {
         product.setQuantity(quantity);
         product.setPrice(price);
         product.setDescription(description);
+        product.setBrand(
+                brandId != null
+                        ?
+                        brandRepository.findById(brandId)
+                                .orElseThrow(
+                                        () -> new BadRequestException("Cannot find brand with brand id: " + brandId)
+                                )
+                        : null
+        );
+        product.setFilm(
+                filmId != null
+                        ?
+                        filmRepository.findById(filmId)
+                                .orElseThrow(() -> new BadRequestException("Cannot find brand with film id: " + filmId))
+                        : null
+        );
         System.out.println(imageURL);
         productRepository.save(product);
 
