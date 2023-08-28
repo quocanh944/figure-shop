@@ -10,6 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import tdtu.vn.figure_shop.domain.Role;
 import tdtu.vn.figure_shop.domain.UserEntity;
 import tdtu.vn.figure_shop.dto.OrderDTO;
@@ -17,6 +18,7 @@ import tdtu.vn.figure_shop.dto.UserDTO;
 import tdtu.vn.figure_shop.repos.OrderRepository;
 import tdtu.vn.figure_shop.repos.UserEntityRepository;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,16 +30,19 @@ public class UserService {
     private final OrderService orderService;
     private final OrderRepository orderRepository;
     private PasswordEncoder passwordEncoder;
+    private FireBaseService fireBaseService;
     @Autowired
     public UserService(UserEntityRepository userEntityRepository,
                        @Lazy OrderService orderService,
                        OrderRepository orderRepository,
-                       PasswordEncoder passwordEncoder
+                       PasswordEncoder passwordEncoder,
+                       FireBaseService fireBaseService
     ) {
         this.userEntityRepository = userEntityRepository;
         this.orderService = orderService;
         this.orderRepository = orderRepository;
         this.passwordEncoder = passwordEncoder;
+        this.fireBaseService = fireBaseService;
     }
 
     public String getCurrentUser() {
@@ -88,9 +93,9 @@ public class UserService {
         user.setUpdatedDate(Instant.now());
         userEntityRepository.save(user);
     }
-    public void changeAvatar(String newAvatar) {
+    public void changeAvatar(MultipartFile file) throws IOException {
         UserEntity user = userEntityRepository.findByEmail(getCurrentUser()).orElseThrow();
-        user.setAvatar(newAvatar);
+        user.setAvatar(fireBaseService.uploadFile(file));
         user.setUpdatedDate(Instant.now());
         userEntityRepository.save(user);
     }

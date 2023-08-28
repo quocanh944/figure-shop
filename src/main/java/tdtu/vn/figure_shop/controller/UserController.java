@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import tdtu.vn.figure_shop.domain.UserEntity;
 import tdtu.vn.figure_shop.dto.UserDTO;
 import tdtu.vn.figure_shop.service.UserService;
@@ -41,9 +42,9 @@ public class UserController {
         return ResponseEntity.ok("Successfully");
     }
 
-    @PutMapping("/update/avatar")
-    public ResponseEntity<String> changeAvatar(@RequestParam String newAvatar) {
-        userService.changeAvatar(newAvatar);
+    @PostMapping(value = "/update/avatar", consumes = {"multipart/form-data"})
+    public ResponseEntity<String> changeAvatar(@RequestParam("file") MultipartFile file) throws Exception {
+        userService.changeAvatar(file);
         return ResponseEntity.ok("Successfully");
     }
 
