@@ -8,15 +8,11 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import tdtu.vn.figure_shop.dto.MediaDTO;
+import tdtu.vn.figure_shop.model.MediaEnum;
+import tdtu.vn.figure_shop.service.FireBaseService;
 import tdtu.vn.figure_shop.service.MediaService;
 
 
@@ -25,9 +21,11 @@ import tdtu.vn.figure_shop.service.MediaService;
 public class MediaResource {
 
     private final MediaService mediaService;
+    private final FireBaseService fireBaseService;
 
-    public MediaResource(final MediaService mediaService) {
+    public MediaResource(final MediaService mediaService, FireBaseService fireBaseService) {
         this.mediaService = mediaService;
+        this.fireBaseService = fireBaseService;
     }
 
     @GetMapping
@@ -42,10 +40,15 @@ public class MediaResource {
         return ResponseEntity.ok(mediaService.get(id));
     }
 
-    @PostMapping
-    @ApiResponse(responseCode = "201")
+    @PostMapping(value = "create", consumes = {"multipart/form-data"})
     @Operation(summary = "Admin side")
-    public ResponseEntity<Long> createMedia(@RequestBody @Valid final MediaDTO mediaDTO) {
+    public ResponseEntity<Long> createMedia(@RequestParam MediaEnum type,
+                                            @RequestParam Long productID,
+                                            @RequestParam("file") MultipartFile file
+    ) throws Exception
+    {
+        MediaDTO mediaDTO = new MediaDTO();
+        mediaDTO.setUrl(fireBaseService.uploadFile(file));
         final Long createdId = mediaService.create(mediaDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
