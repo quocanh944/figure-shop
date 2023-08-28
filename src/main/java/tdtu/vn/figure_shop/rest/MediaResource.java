@@ -40,7 +40,7 @@ public class MediaResource {
         return ResponseEntity.ok(mediaService.get(id));
     }
 
-    @PostMapping(value = "create", consumes = {"multipart/form-data"})
+    @PostMapping(value = "", consumes = {"multipart/form-data"})
     @Operation(summary = "Admin side")
     public ResponseEntity<Long> createMedia(@RequestParam MediaEnum type,
                                             @RequestParam Long productID,

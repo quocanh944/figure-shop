@@ -41,7 +41,7 @@ public class UserController {
         return ResponseEntity.ok("Successfully");
     }
 
-    @PostMapping(value = "upload-update/avatar", consumes = {"multipart/form-data"})
+    @PostMapping(value = "/update/avatar", consumes = {"multipart/form-data"})
     public ResponseEntity<String> changeAvatar(@RequestParam("file") MultipartFile file) throws Exception {
         userService.changeAvatar(file);
         return ResponseEntity.ok("Successfully");
