@@ -2,6 +2,8 @@ package tdtu.vn.figure_shop.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,6 +18,7 @@ import tdtu.vn.figure_shop.repos.OrderRepository;
 import tdtu.vn.figure_shop.repos.UserEntityRepository;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -100,13 +103,11 @@ public class UserService {
     public Optional<UserDTO> getUserById(Long id) {
         return userEntityRepository.findById(id).map(user -> mapToDTO(user, new UserDTO()));
     }
-    public List<UserDTO> getAllUser() {
+    public Page<UserDTO> getAllUser(Integer page, Integer size) {
         Role role = new Role();
         role.setId(2L);
         role.setName("USER");
-        return (List<UserDTO>) userEntityRepository.findByRoles(role)
-                .stream()
-                .map(user -> mapToDTO(user, new UserDTO()))
-                .toList();
+        return userEntityRepository.findByRoles(role, PageRequest.of(page, size))
+                .map(user -> mapToDTO(user, new UserDTO()));
     }
 }

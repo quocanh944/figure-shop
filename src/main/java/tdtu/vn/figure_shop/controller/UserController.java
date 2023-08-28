@@ -2,6 +2,7 @@ package tdtu.vn.figure_shop.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -59,7 +60,18 @@ public class UserController {
     }
     @GetMapping("/all-user")
     @Operation(summary = "Admin side")
-    public ResponseEntity<List<UserDTO>> getAllUser() {
-        return ResponseEntity.ok(userService.getAllUser());
+    public ResponseEntity<Page<UserDTO>> getAllUser(
+            @RequestParam(
+                    value = "page",
+                    defaultValue = "0",
+                    required = false
+            ) Integer page,
+            @RequestParam(
+                    value = "size",
+                    defaultValue = "9",
+                    required = false
+            ) Integer size
+    ) {
+        return ResponseEntity.ok(userService.getAllUser(page, size));
     }
 }
