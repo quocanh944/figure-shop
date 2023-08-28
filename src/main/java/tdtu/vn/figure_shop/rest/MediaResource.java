@@ -48,6 +48,8 @@ public class MediaResource {
     ) throws Exception
     {
         MediaDTO mediaDTO = new MediaDTO();
+        mediaDTO.setType(type);
+        mediaDTO.setProduct(productID);
         mediaDTO.setUrl(fireBaseService.uploadFile(file));
         final Long createdId = mediaService.create(mediaDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
