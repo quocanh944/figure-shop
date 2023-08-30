@@ -14,11 +14,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import tdtu.vn.figure_shop.dto.CreateProductDTO;
+import tdtu.vn.figure_shop.dto.OrderDetailDTO;
 import tdtu.vn.figure_shop.dto.ProductDTO;
 import tdtu.vn.figure_shop.dto.ProductDetailDTO;
+import tdtu.vn.figure_shop.service.OrderDetailService;
 import tdtu.vn.figure_shop.service.ProductService;
 
 import java.io.IOException;
+import java.util.List;
 
 
 @RestController
@@ -26,9 +29,11 @@ import java.io.IOException;
 public class ProductResource {
 
     private final ProductService productService;
+    private final OrderDetailService orderDetailService;
 
-    public ProductResource(final ProductService productService) {
+    public ProductResource(final ProductService productService, OrderDetailService orderDetailService) {
         this.productService = productService;
+        this.orderDetailService = orderDetailService;
     }
 
     @GetMapping
@@ -212,6 +217,15 @@ public class ProductResource {
         return ResponseEntity.noContent().build();
     }
 
-
+    @GetMapping("/best-seller")
+    @Operation(summary = "Admin side")
+    public ResponseEntity<List<OrderDetailDTO>> getBestSeller(
+            @RequestParam(
+                    name = "amount",
+                    defaultValue = "6"
+            ) final Integer amount
+    ) {
+        return ResponseEntity.ok(orderDetailService.getBestSeller(amount));
+    }
 
 }
