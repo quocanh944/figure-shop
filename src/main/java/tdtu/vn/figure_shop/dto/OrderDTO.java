@@ -9,6 +9,8 @@ import java.util.List;
 
 @Data
 public class OrderDTO {
+
+    private Long id;
     private Double total;
     private String address;
     private String name;

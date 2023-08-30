@@ -91,6 +91,7 @@ public class OrderService {
     }
 
     public OrderDTO mapToDTO(Order order, OrderDTO orderDTO) {
+        orderDTO.setId(order.getId());
         orderDTO.setAddress(order.getAddress());
         orderDTO.setName(order.getName());
         orderDTO.setTotal(order.getTotal());

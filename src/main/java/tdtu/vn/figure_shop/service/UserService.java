@@ -50,6 +50,7 @@ public class UserService {
         return user.orElseThrow().getId();
     }
     public UserDTO mapToDTO(UserEntity user, UserDTO userDTO) {
+        userDTO.setId(user.getId());
         userDTO.setEmail(user.getEmail());
         userDTO.setFullName(user.getFullName());
         userDTO.setAvatar(user.getAvatar());
