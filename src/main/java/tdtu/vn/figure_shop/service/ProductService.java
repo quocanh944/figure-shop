@@ -41,11 +41,28 @@ public class ProductService {
         return pageEntities.map((product -> mapToDetailDTO(product, new ProductDetailDTO())));
     }
 
-    public Page<ProductDetailDTO> findAllByFilm(Integer page, Integer size, Long id,String sortDirection) {
-        Film film = filmRepository.findById(id).orElseThrow();
+    public Page<ProductDetailDTO> filter(
+            List<Long> brandIds,
+            List<Long> filmIds,
+            Integer page,
+            Integer size,
+            String sortDirection
+    ) {
         Sort.Direction direction= sortDirection.equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
         Sort sort = Sort.by(direction,"price");
-        Page<Product> pageEntities = productRepository.findAllByFilm(film, PageRequest.of(page, size,sort));
+        Page<Product> pageEntities = productRepository.findAllByBrandInAndFilmIn(
+                brandRepository.findAllById(brandIds),
+                filmRepository.findAllById(filmIds),
+                PageRequest.of(page, size, sort)
+        );
+        return pageEntities.map((product -> mapToDetailDTO(product, new ProductDetailDTO())));
+    }
+
+    public Page<ProductDetailDTO> findAllByFilm(List<Long> filmIds, Integer page, Integer size,String sortDirection) {
+
+        Sort.Direction direction= sortDirection.equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction,"price");
+        Page<Product> pageEntities = productRepository.findAllByFilmIn(filmRepository.findAllById(filmIds), PageRequest.of(page, size,sort));
 
         return pageEntities.map(product -> mapToDetailDTO(product, new ProductDetailDTO()));
     }
@@ -57,12 +74,14 @@ public class ProductService {
         return products.map(product -> mapToDetailDTO(product,new ProductDetailDTO()));
     }
 
-    public Page<ProductDetailDTO> findProductBrand(Long brandId,int page,int size,String sortDirection){
-        Brand brand = brandRepository.findById(brandId).orElseThrow();
+    public Page<ProductDetailDTO> findProductBrand(List<Long> brandIds,int page,int size,String sortDirection){
         Sort.Direction direction = sortDirection.equalsIgnoreCase("ASC") ?Sort.Direction.ASC : Sort.Direction.DESC;
         Sort sort = Sort.by(direction,"price");
-//
-        Page<Product> products = productRepository.findByBrand(brand,PageRequest.of(page,size,sort));
+
+        Page<Product> products = productRepository.findByBrandIn(
+                brandRepository.findAllById(brandIds),
+                PageRequest.of(page,size,sort)
+        );
         return products.map(product -> mapToDetailDTO(product,new ProductDetailDTO()));
     }
 
