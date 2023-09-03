@@ -22,6 +22,7 @@ import tdtu.vn.figure_shop.service.ProductService;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 
 @RestController
@@ -40,6 +41,14 @@ public class ProductResource {
     @SecurityRequirements()
     public ResponseEntity<Page<ProductDetailDTO>> getAllProducts(
             @RequestParam(
+                    value = "brands",
+                    defaultValue = ""
+            ) List<Long> brandIds,
+            @RequestParam(
+                    value = "films",
+                    defaultValue = ""
+            ) List<Long> filmIds,
+            @RequestParam(
                     value = "page",
                     defaultValue = "0",
                     required = false
@@ -51,14 +60,16 @@ public class ProductResource {
             ) Integer size,
             @RequestParam(defaultValue = "ASC") String sort
     ) {
-
-        return ResponseEntity.ok(productService.findAll(page, size, sort));
+        if (brandIds.isEmpty() && filmIds.isEmpty()) {
+            return ResponseEntity.ok(productService.findAll(page, size, sort));
+        }
+        return ResponseEntity.ok(productService.filter(brandIds, filmIds, page, size, sort));
     }
 
-    @GetMapping("/film/{id}")
+    @GetMapping("/film")
     @SecurityRequirements()
     public ResponseEntity<Page<ProductDetailDTO>> getAllProductsByFilm(
-            @PathVariable(name = "id") Long filmId,
+            @RequestParam(value = "ids", defaultValue = "") List<Long> filmIds,
             @RequestParam(
                     value = "page",
                     defaultValue = "0",
@@ -72,17 +83,24 @@ public class ProductResource {
             @RequestParam(defaultValue = "ASC") String sort
     ) {
 
-        return ResponseEntity.ok(productService.findAllByFilm(page, size, filmId,sort));
+        return ResponseEntity.ok(productService.findAllByFilm(filmIds, page, size, sort));
     }
 
-    @GetMapping("/brand/{id}")
+    @GetMapping("/brand")
     @SecurityRequirements()
     public ResponseEntity<Page<ProductDetailDTO>> getProductsByBrand(
-            @PathVariable(name = "id") Long brandId,
+            @RequestParam(value = "ids", defaultValue = "") List<Long> brandIds,
             @RequestParam(value = "page", defaultValue = "0",required = false) int page,
             @RequestParam(value = "size", defaultValue = "15",required = false) int size,
             @RequestParam(defaultValue = "ASC") String sort){
-        return ResponseEntity.ok(productService.findProductBrand(brandId,page,size,sort));
+        return ResponseEntity.ok(
+                productService.findProductBrand(
+                        brandIds,
+                        page,
+                        size,
+                        sort
+                )
+        );
     }
 
     @GetMapping("/byPriceRange")

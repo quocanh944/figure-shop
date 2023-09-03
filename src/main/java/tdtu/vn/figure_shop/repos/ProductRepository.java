@@ -7,12 +7,16 @@ import tdtu.vn.figure_shop.domain.Brand;
 import tdtu.vn.figure_shop.domain.Film;
 import tdtu.vn.figure_shop.domain.Product;
 
+import java.util.List;
+
 public interface ProductRepository extends JpaRepository<Product, Long> {
-    Page<Product> findAllByFilm(Film film, Pageable pageable);
+    Page<Product> findAllByFilmIn(List<Film> film, Pageable pageable);
 
     Page<Product> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
     Page<Product> findByPriceBetween(double minPrice,double maxPrice,Pageable pageable);
 
-    Page<Product> findByBrand(Brand brand, Pageable pageable);
+    Page<Product> findByBrandIn(List<Brand> brands, Pageable pageable);
+
+    Page<Product> findAllByBrandInAndFilmIn(List<Brand> brands, List<Film> film, Pageable pageable);
 }
