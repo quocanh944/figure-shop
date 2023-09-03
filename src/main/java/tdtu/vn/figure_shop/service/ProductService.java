@@ -187,7 +187,7 @@ public class ProductService {
                 product.getBrand() == null
                         ? null
                         : brandService.mapToDTO(
-                        brandRepository.findById(product.getFilm().getId()).orElseThrow(),
+                        brandRepository.findById(product.getBrand().getId()).orElseThrow(),
                         new BrandDTO()
                 )
         );

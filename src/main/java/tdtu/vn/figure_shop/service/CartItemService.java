@@ -41,17 +41,17 @@ public class CartItemService {
         return cartItemRepository.findByUser_Id(userId);
     }
 
-    public void addItemToCart(Long productID) {
+    public void addItemToCart(Long productID, Integer quantity) {
         UserEntity user = userEntityRepository.findByEmail(userService.getCurrentUser()).orElseThrow();
         Product product = productRepository.findById(productID).orElseThrow();
         CartItem cartItem = cartItemRepository.findByUserAndProduct(user, product);
         if (cartItem != null) {
-            cartItem.setQuantity(cartItem.getQuantity() + 1);
+            cartItem.setQuantity(cartItem.getQuantity() + quantity);
         } else {
             cartItem = new CartItem();
             cartItem.setUser(user);
             cartItem.setProduct(product);
-            cartItem.setQuantity(1);
+            cartItem.setQuantity(quantity);
         }
         cartItemRepository.save(cartItem);
     }
