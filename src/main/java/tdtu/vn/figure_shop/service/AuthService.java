@@ -48,6 +48,7 @@ public class AuthService {
         UserEntity newUser = new UserEntity();
         newUser.setEmail(registerDTO.getEmail());
         newUser.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
+        newUser.setFullName(registerDTO.getFullName());
 
         Role role = roleRepository.findByName("USER").get();
         newUser.setRoles(Collections.singletonList(role));

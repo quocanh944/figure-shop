@@ -12,6 +12,9 @@ public class RegisterDTO {
     private String email;
 
     @NotNull
+    private String fullName;
+
+    @NotNull
     private String password;
 
     @NotNull
