@@ -18,6 +18,7 @@ import tdtu.vn.figure_shop.repos.UserEntityRepository;
 import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -109,5 +110,10 @@ public class OrderService {
                 .stream()
                 .map(order -> mapToDTO(order, new OrderDTO()))
                 .toList();
+    }
+
+    public Optional<OrderDTO> getOrderDTOByID(Long id) {
+        return orderRepository.findById(id)
+                .map(order1 -> mapToDTO(order1, new OrderDTO()));
     }
 }

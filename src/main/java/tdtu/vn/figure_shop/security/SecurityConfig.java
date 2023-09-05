@@ -98,7 +98,8 @@ public class SecurityConfig {
                                     "/api/statistic",
                                     "/api/user/{id}",
                                     "/api/user/all-user",
-                                    "/api/products/best-seller"
+                                    "/api/products/best-seller",
+                                    "/api/orders/{id}"
                             ).hasAuthority("ADMIN")
                             .requestMatchers(
                                     "/api/carts/**"
