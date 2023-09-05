@@ -12,6 +12,8 @@ import tdtu.vn.figure_shop.dto.OrderDTO;
 import tdtu.vn.figure_shop.model.BaseResponse;
 import tdtu.vn.figure_shop.service.OrderService;
 
+import java.util.Optional;
+
 
 @RestController
 @AllArgsConstructor
@@ -51,5 +53,9 @@ public class OrderController {
                         .data("Successfully")
                         .build()
         );
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<Optional<OrderDTO>> getOrderByID(@PathVariable Long id) {
+        return ResponseEntity.ok(orderService.getOrderDTOByID(id));
     }
 }
